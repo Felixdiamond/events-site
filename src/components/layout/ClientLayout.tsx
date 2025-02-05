@@ -12,22 +12,41 @@ export default function ClientRootLayout({
   children: React.ReactNode;
 }) {
   useEffect(() => {
+    // Stop the default smooth scroll behavior
+    if (typeof window !== 'undefined') {
+      document.documentElement.style.scrollBehavior = 'auto';
+    }
+
     const lenis = new Lenis({
-      lerp: 0.1,
-      wheelMultiplier: 0.7,
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
       touchMultiplier: 2,
       infinite: false,
     });
 
+    let rafId: number;
+    
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    // Start the animation frame
+    rafId = requestAnimationFrame(raf);
 
     return () => {
+      // Clean up animation frame
+      cancelAnimationFrame(rafId);
       lenis.destroy();
+
+      // Reset scroll behavior
+      if (typeof window !== 'undefined') {
+        document.documentElement.style.scrollBehavior = '';
+      }
     };
   }, []);
 

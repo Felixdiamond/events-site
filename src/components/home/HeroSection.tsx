@@ -216,14 +216,17 @@ const HeroSection = () => {
 
             {/* Main Title */}
             <div className="space-y-6">
-              <SplitText
-                text="Crafting Extraordinary"
+              <motion.div
+                initial={{ opacity: 0, y: 70 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 1,
+                  ease: [0.2, 0.65, 0.3, 0.9]
+                }}
                 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold bg-gradient-to-r from-white via-primary-200 to-white bg-clip-text text-transparent drop-shadow-sm"
-                delay={35}
-                animationFrom={{ opacity: 0, transform: 'translate3d(0,70px,0)' }}
-                animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
-                easing={(t) => t * (2 - t)}
-              />
+              >
+                Crafting Extraordinary
+              </motion.div>
               <SplitText
                 text="Moments Together"
                 className="text-6xl md:text-7xl lg:text-8xl font-display font-bold text-primary drop-shadow-lg"

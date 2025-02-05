@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { RiArrowRightLine } from 'react-icons/ri';
+import { RiArrowRightLine, RiHeartLine, RiHomeHeartLine, RiPaletteLine, RiStore3Line } from 'react-icons/ri';
 
 const services = [
   {
@@ -12,6 +12,7 @@ const services = [
     title: 'Weddings & Engagements',
     description: 'Turn your dream wedding into reality with our bespoke planning and flawless execution.',
     image: '/images/services/wedding.jpg',
+    icon: RiHeartLine,
     features: [
       'Full Wedding Planning',
       'Partial Planning & Coordination',
@@ -29,6 +30,7 @@ const services = [
     title: 'Corporate Events',
     description: 'Elevate your corporate gatherings with sophisticated planning and professional execution.',
     image: '/images/services/corporate.jpg',
+    icon: RiStore3Line,
     features: [
       'Conferences & Seminars',
       'Product Launches',
@@ -42,10 +44,65 @@ const services = [
     price: 'Starting from ₦350,000',
   },
   {
+    id: 'burial',
+    title: 'Burial Ceremonies',
+    description: 'Thoughtful and well-organized services that honor and celebrate the life of your loved ones.',
+    image: '/images/services/burial.jpg',
+    icon: RiHomeHeartLine,
+    features: [
+      'Complete Ceremony Planning',
+      'Venue Arrangement',
+      'Catering Services',
+      'Memorial Services',
+      'Family Support',
+      'Cultural Integration',
+      'Guest Coordination',
+      'Documentation',
+    ],
+    price: 'Starting from ₦400,000',
+  },
+  {
+    id: 'decoration',
+    title: 'Event Venue Decorations',
+    description: 'Transform any space with our elegant and customized themes that create the perfect ambiance.',
+    image: '/images/services/decoration.jpg',
+    icon: RiPaletteLine,
+    features: [
+      'Custom Theme Design',
+      'Floral Arrangements',
+      'Lighting Design',
+      'Stage Setup',
+      'Table Settings',
+      'Backdrop Creation',
+      'Props & Accessories',
+      'On-site Styling',
+    ],
+    price: 'Starting from ₦200,000',
+  },
+  {
+    id: 'rentals',
+    title: 'Rentals & Party Supplies',
+    description: 'Providing all essentials for a perfect event, from furniture to decor items.',
+    image: '/images/services/rentals.jpg',
+    icon: RiStore3Line,
+    features: [
+      'Furniture Rental',
+      'Tableware & Linens',
+      'Lighting Equipment',
+      'Sound Systems',
+      'Tents & Canopies',
+      'Dance Floors',
+      'Decor Items',
+      'Setup & Breakdown',
+    ],
+    price: 'Starting from ₦150,000',
+  },
+  {
     id: 'social',
     title: 'Social Celebrations',
     description: 'Create unforgettable moments with expertly crafted social events that leave lasting impressions.',
     image: '/images/services/social.jpg',
+    icon: RiHeartLine,
     features: [
       'Birthday Parties',
       'Anniversary Celebrations',
@@ -58,27 +115,11 @@ const services = [
     ],
     price: 'Starting from ₦250,000',
   },
-  {
-    id: 'luxury',
-    title: 'Luxury Experiences',
-    description: 'Indulge in extraordinary experiences with our premium event planning and concierge services.',
-    image: '/images/services/luxury.jpg',
-    features: [
-      'VIP Events',
-      'Destination Events',
-      'Luxury Weddings',
-      'Celebrity Events',
-      'Yacht Parties',
-      'Private Concerts',
-      'Exclusive Galas',
-      'Bespoke Experiences',
-    ],
-    price: 'Custom Quotation',
-  },
 ];
 
 const ServiceCard = ({ service, index }: { service: typeof services[0]; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const Icon = service.icon;
 
   return (
     <motion.div
@@ -90,7 +131,11 @@ const ServiceCard = ({ service, index }: { service: typeof services[0]; index: n
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
     >
-      <div className="relative overflow-hidden rounded-2xl bg-white/[0.01] border border-white/10">
+      <motion.div
+        className="absolute -inset-2 rounded-3xl bg-primary/5 opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500"
+        whileHover={{ scale: 1.1 }}
+      />
+      <div className="relative overflow-hidden rounded-2xl bg-white/[0.01] border border-white/10 backdrop-blur-sm">
         {/* Image Section */}
         <div className="relative h-[300px] overflow-hidden">
           <Image
@@ -99,13 +144,18 @@ const ServiceCard = ({ service, index }: { service: typeof services[0]; index: n
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/50 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
           
           {/* Title Overlay */}
           <div className="absolute inset-x-0 bottom-0 p-6">
-            <h3 className="text-3xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
-              {service.title}
-            </h3>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
+                <Icon className="text-2xl text-primary" />
+              </div>
+              <h3 className="text-3xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
+                {service.title}
+              </h3>
+            </div>
           </div>
         </div>
 
@@ -178,17 +228,57 @@ const ServicesPage = () => {
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/80 to-secondary" />
           <div className="absolute inset-0 bg-[url('/images/texture.png')] bg-repeat bg-[length:32px_32px] opacity-[0.02]" />
+          
+          {/* Animated particles */}
+          <div className="absolute inset-0 overflow-hidden">
+            {[...Array(20)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-primary/30 rounded-full"
+                initial={{ opacity: 0.2, scale: 0 }}
+                animate={{
+                  opacity: [0.2, 0.8, 0.2],
+                  scale: [0, 1.5, 0],
+                  y: [-20, -100],
+                  x: Math.random() * 20 - 10,
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 2,
+                  repeat: Infinity,
+                  delay: Math.random() * 3,
+                  ease: "easeOut"
+                }}
+                style={{
+                  left: `${20 + Math.random() * 60}%`,
+                  top: `${80 + Math.random() * 10}%`,
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         <motion.div 
           className="relative container mx-auto px-4 text-center"
           style={{ y, opacity }}
         >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="inline-block mb-6"
+          >
+            <div className="px-6 py-2 rounded-full bg-white/[0.03] backdrop-blur-sm border border-white/10">
+              <span className="text-sm text-primary-200 font-medium tracking-wider uppercase">
+                Comprehensive Event Solutions
+              </span>
+            </div>
+          </motion.div>
+
           <motion.h1 
             className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
             Our Services
           </motion.h1>
@@ -196,7 +286,7 @@ const ServicesPage = () => {
             className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
           >
             Discover our comprehensive range of event planning services, 
             each crafted to deliver extraordinary experiences.
@@ -250,12 +340,11 @@ const ServicesPage = () => {
             </p>
             <Link href="/contact">
               <motion.button
-                className="px-8 py-4 bg-primary text-white rounded-full flex items-center space-x-2 mx-auto hover:bg-primary-600 transition-colors"
+                className="px-8 py-4 bg-primary text-white rounded-full font-medium shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span>Start Your Journey</span>
-                <RiArrowRightLine />
+                Get in Touch
               </motion.button>
             </Link>
           </motion.div>

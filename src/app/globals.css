@@ -4,8 +4,7 @@
 
 @layer base {
   :root {
-    --scroll-behavior: smooth !important;
-    scroll-behavior: smooth !important;
+    /* Remove conflicting scroll behavior */
   }
 
   body {
