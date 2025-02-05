@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sparkling World Events
+
+A premium event management and rental company website built with Next.js 15, TypeScript, and Tailwind CSS.
+
+## Features
+
+- 🎨 Modern and elegant design
+- 📱 Fully responsive layout
+- ⚡ Fast page loads with Next.js App Router
+- 🎭 Smooth animations with Framer Motion
+- 🗺️ Google Maps integration
+- 📸 Image gallery with lightbox
+- 📝 Contact form with validation
+- 🎯 SEO optimized
+
+## Tech Stack
+
+- Next.js 15
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- React Hook Form
+- Zod
+- Google Maps API
+- Cloudinary
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ (LTS recommended)
+- Bun package manager
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/sparklingworldevents.git
+   cd sparklingworldevents
+   ```
+
+2. Install dependencies:
+   ```bash
+   bun install
+   ```
+
+3. Create a `.env.local` file in the root directory and add your environment variables:
+   ```env
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   NEXT_PUBLIC_CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+   ```
+
+4. Start the development server:
+   ```bash
+   bun dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Building for Production
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+To start the production server:
+```bash
+bun start
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                 # App router pages
+├── components/          # React components
+│   ├── layout/         # Layout components
+│   ├── ui/             # UI components
+│   ├── home/           # Home page components
+│   ├── services/       # Services page components
+│   ├── gallery/        # Gallery page components
+│   └── contact/        # Contact page components
+├── styles/             # Global styles
+└── types/              # TypeScript types
 
-## Learn More
+public/
+├── images/             # Static images
+└── fonts/             # Custom fonts
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contact
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Sparkling World Events
+- Email: sparklingworldevents@gmail.com
+- WhatsApp: +234 911 921 7578
+- Instagram: @sparklingworldng
+- Facebook: Sparkling World

@@ -9,19 +9,44 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
+    "@react-google-maps/api": "^2.20.5",
+    "@react-spring/web": "^9.7.5",
+    "@react-three/drei": "^9.121.4",
+    "@react-three/fiber": "^8.17.12",
+    "@splinetool/react-spline": "splinetool/react-spline",
+    "@studio-freight/lenis": "^1.0.42",
+    "@theatre/core": "^0.7.2",
+    "@theatre/studio": "^0.7.2",
+    "framer-motion": "^12.0.6",
+    "framer-motion-3d": "^12.0.6",
+    "gsap": "^3.12.7",
+    "locomotive-scroll": "^4.1.4",
+    "lottie-react": "^2.4.1",
+    "lucide-react": "^0.474.0",
+    "next": "15.1.6",
+    "next-cloudinary": "^6.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.1.6"
+    "react-hook-form": "^7.54.2",
+    "react-icons": "^5.4.0",
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1",
+    "three": "^0.172.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
-    "@eslint/eslintrc": "^3"
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }
