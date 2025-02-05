@@ -1,7 +1,55 @@
 import { useEffect, useRef } from "react";
 
-class Pixel {
-  constructor(canvas, context, x, y, color, speed, delay) {
+interface PixelProps {
+  width: number;
+  height: number;
+  ctx: CanvasRenderingContext2D;
+  x: number;
+  y: number;
+  color: string;
+  speed: number;
+  size: number;
+  sizeStep: number;
+  minSize: number;
+  maxSizeInteger: number;
+  maxSize: number;
+  delay: number;
+  counter: number;
+  counterStep: number;
+  isIdle: boolean;
+  isReverse: boolean;
+  isShimmer: boolean;
+}
+
+class Pixel implements PixelProps {
+  width: number;
+  height: number;
+  ctx: CanvasRenderingContext2D;
+  x: number;
+  y: number;
+  color: string;
+  speed: number;
+  size: number;
+  sizeStep: number;
+  minSize: number;
+  maxSizeInteger: number;
+  maxSize: number;
+  delay: number;
+  counter: number;
+  counterStep: number;
+  isIdle: boolean;
+  isReverse: boolean;
+  isShimmer: boolean;
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    color: string,
+    speed: number,
+    delay: number
+  ) {
     this.width = canvas.width;
     this.height = canvas.height;
     this.ctx = context;
@@ -22,7 +70,7 @@ class Pixel {
     this.isShimmer = false;
   }
 
-  getRandomValue(min, max) {
+  getRandomValue(min: number, max: number): number {
     return Math.random() * (max - min) + min;
   }
 
@@ -80,11 +128,11 @@ class Pixel {
   }
 }
 
-function getEffectiveSpeed(value, reducedMotion) {
+function getEffectiveSpeed(value: number | string, reducedMotion: boolean): number {
   const min = 0;
   const max = 100;
   const throttle = 0.001;
-  const parsed = parseInt(value, 10);
+  const parsed = parseInt(value.toString(), 10);
 
   if (parsed <= min || reducedMotion) {
     return min;
