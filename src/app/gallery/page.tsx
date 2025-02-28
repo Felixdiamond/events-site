@@ -1,9 +1,14 @@
 'use client';
 
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { RiCloseLine, RiZoomInLine, RiArrowRightUpLine } from 'react-icons/ri';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 // Gallery categories and images
 const categories = [
@@ -29,107 +34,112 @@ interface GalleryItem {
   accent?: string;
 }
 
-const galleryItems: GalleryItem[] = [
-  {
-    id: 1,
-    category: 'weddings',
-    image: '/images/gallery/wedding-1.jpg',
-    title: 'Beachfront Wedding',
-    description: 'An elegant beachfront wedding celebration with stunning sunset views.',
-    size: 'large',
-    position: 'center',
-    accent: 'from-rose-500/20 to-primary/20',
-  },
-  {
-    id: 2,
-    category: 'corporate',
-    image: '/images/gallery/corporate-1.jpg',
-    title: 'Tech Summit 2023',
-    description: 'Annual technology conference with industry leaders.',
-    size: 'small',
-    position: 'center',
-    accent: 'from-blue-500/20 to-primary/20',
-  },
-  {
-    id: 3,
-    category: 'decoration',
-    image: '/images/gallery/decoration-1.jpg',
-    title: 'Floral Paradise',
-    description: 'Exquisite floral arrangements transforming spaces.',
-    size: 'wide',
-    position: 'center',
-    accent: 'from-emerald-500/20 to-primary/20',
-  },
-  {
-    id: 4,
-    category: 'burial',
-    image: '/images/gallery/burial-1.jpg',
-    title: 'Memorial Service',
-    description: 'A dignified celebration of life.',
-    size: 'tall',
-    position: 'center',
-    accent: 'from-purple-500/20 to-primary/20',
-  },
-  {
-    id: 5,
-    category: 'weddings',
-    image: '/images/gallery/wedding-2.jpg',
-    title: 'Garden Wedding',
-    description: 'A romantic garden wedding with enchanting floral arrangements.',
-    size: 'small',
-    position: 'center',
-    accent: 'from-pink-500/20 to-primary/20',
-  },
-  {
-    id: 6,
-    category: 'decoration',
-    image: '/images/gallery/decoration-2.jpg',
-    title: 'Royal Theme',
-    description: 'Luxurious venue transformation with royal aesthetics.',
-    size: 'large',
-    position: 'center',
-    accent: 'from-amber-500/20 to-primary/20',
-  },
-  {
-    id: 7,
-    category: 'burial',
-    image: '/images/gallery/burial-2.jpg',
-    title: 'Traditional Ceremony',
-    description: 'Cultural celebration honoring heritage.',
-    size: 'wide',
-    position: 'center',
-    accent: 'from-indigo-500/20 to-primary/20',
-  },
-  {
-    id: 8,
-    category: 'social',
-    image: '/images/gallery/social-2.jpg',
-    title: 'Birthday Gala',
-    description: 'Extravagant birthday celebration with custom entertainment.',
-    size: 'tall',
-    accent: 'from-teal-500/20 to-primary/20',
-  },
-  {
-    id: 9,
-    category: 'weddings',
-    image: '/images/gallery/wedding-3.jpg',
-    title: 'Traditional Wedding',
-    description: 'A beautiful blend of modern and traditional ceremonies.',
-    size: 'small',
-    position: 'center',
-    accent: 'from-rose-500/20 to-primary/20',
-  },
-  {
-    id: 10,
-    category: 'corporate',
-    image: '/images/gallery/corporate-3.jpg',
-    title: 'Annual Gala',
-    description: 'Corporate excellence awards and celebration.',
-    size: 'wide',
-    position: 'center',
-    accent: 'from-blue-500/20 to-primary/20',
-  },
-];
+// Fetch gallery data function - this would be replaced with a server call
+const fetchGalleryItems = async (): Promise<GalleryItem[]> => {
+  // Simulating server response
+  return [
+    {
+      id: 1,
+      category: 'weddings',
+      image: '/images/gallery/wedding-1.jpg',
+      title: 'Beachfront Wedding',
+      description: 'An elegant beachfront wedding celebration with stunning sunset views.',
+      size: 'large',
+      position: 'center',
+      accent: 'from-rose-500/20 to-primary/20',
+    },
+    {
+      id: 2,
+      category: 'corporate',
+      image: '/images/gallery/corporate-1.jpg',
+      title: 'Tech Summit 2023',
+      description: 'Annual technology conference with industry leaders.',
+      size: 'small',
+      position: 'center',
+      accent: 'from-blue-500/20 to-primary/20',
+    },
+    {
+      id: 3,
+      category: 'decoration',
+      image: '/images/gallery/decoration-1.jpg',
+      title: 'Floral Paradise',
+      description: 'Exquisite floral arrangements transforming spaces.',
+      size: 'wide',
+      position: 'center',
+      accent: 'from-emerald-500/20 to-primary/20',
+    },
+    {
+      id: 4,
+      category: 'burial',
+      image: '/images/gallery/burial-1.jpg',
+      title: 'Memorial Service',
+      description: 'A dignified celebration of life.',
+      size: 'tall',
+      position: 'center',
+      accent: 'from-purple-500/20 to-primary/20',
+    },
+    {
+      id: 5,
+      category: 'weddings',
+      image: '/images/gallery/wedding-2.jpg',
+      title: 'Garden Wedding',
+      description: 'A romantic garden wedding with enchanting floral arrangements.',
+      size: 'small',
+      position: 'center',
+      accent: 'from-pink-500/20 to-primary/20',
+    },
+    {
+      id: 6,
+      category: 'decoration',
+      image: '/images/gallery/decoration-2.jpg',
+      title: 'Royal Theme',
+      description: 'Luxurious venue transformation with royal aesthetics.',
+      size: 'large',
+      position: 'center',
+      accent: 'from-amber-500/20 to-primary/20',
+    },
+    {
+      id: 7,
+      category: 'burial',
+      image: '/images/gallery/burial-2.jpg',
+      title: 'Traditional Ceremony',
+      description: 'Cultural celebration honoring heritage.',
+      size: 'wide',
+      position: 'center',
+      accent: 'from-indigo-500/20 to-primary/20',
+    },
+    {
+      id: 8,
+      category: 'social',
+      image: '/images/gallery/social-2.jpg',
+      title: 'Birthday Gala',
+      description: 'Extravagant birthday celebration with custom entertainment.',
+      size: 'tall',
+      position: 'center',
+      accent: 'from-teal-500/20 to-primary/20',
+    },
+    {
+      id: 9,
+      category: 'weddings',
+      image: '/images/gallery/wedding-3.jpg',
+      title: 'Traditional Wedding',
+      description: 'A beautiful blend of modern and traditional ceremonies.',
+      size: 'small',
+      position: 'center',
+      accent: 'from-rose-500/20 to-primary/20',
+    },
+    {
+      id: 10,
+      category: 'corporate',
+      image: '/images/gallery/corporate-3.jpg',
+      title: 'Annual Gala',
+      description: 'Corporate excellence awards and celebration.',
+      size: 'wide',
+      position: 'center',
+      accent: 'from-blue-500/20 to-primary/20',
+    },
+  ];
+};
 
 const GalleryModal = ({ item, onClose }: { item: GalleryItem; onClose: () => void }) => {
   return (
@@ -173,22 +183,43 @@ const GalleryModal = ({ item, onClose }: { item: GalleryItem; onClose: () => voi
   );
 };
 
+// Utility function to get size classes based on item size
+const getSizeClasses = (size: GallerySize): string => {
+  switch (size) {
+    case 'small':
+      return 'col-span-1 row-span-1';
+    case 'wide':
+      return 'col-span-2 row-span-1';
+    case 'tall':
+      return 'col-span-1 row-span-2';
+    case 'large':
+      return 'col-span-2 row-span-2';
+    default:
+      return 'col-span-1 row-span-1';
+  }
+};
+
+// Utility function to get aspect ratios based on item size
+const getAspectRatio = (size: GallerySize): string => {
+  switch (size) {
+    case 'small':
+      return 'aspect-[4/3]';
+    case 'wide':
+      return 'aspect-[16/9]';
+    case 'tall':
+      return 'aspect-[3/4]';
+    case 'large':
+      return 'aspect-square';
+    default:
+      return 'aspect-square';
+  }
+};
+
 const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => void }) => {
   const [isHovered, setIsHovered] = useState(false);
-
-  const sizeClasses: Record<GallerySize, string> = {
-    small: 'col-span-12 sm:col-span-6 lg:col-span-3',
-    wide: 'col-span-12 sm:col-span-12 lg:col-span-6',
-    tall: 'col-span-12 sm:col-span-6 lg:col-span-3 row-span-2',
-    large: 'col-span-12 sm:col-span-12 lg:col-span-6 row-span-2',
-  };
-
-  const aspectRatios: Record<GallerySize, string> = {
-    small: 'aspect-[4/3]',
-    wide: 'aspect-[16/9]',
-    tall: 'aspect-[3/4]',
-    large: 'aspect-square',
-  };
+  
+  const sizeClass = getSizeClasses(item.size);
+  const aspectRatio = getAspectRatio(item.size);
 
   return (
     <motion.div
@@ -196,13 +227,13 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className={`relative group ${sizeClasses[item.size]}`}
+      className={`relative ${sizeClass} h-full`}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onClick={onSelect}
     >
       <motion.div 
-        className={`relative ${aspectRatios[item.size]} rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer h-full`}
+        className={`relative ${aspectRatio} rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer h-full`}
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.3 }}
       >
@@ -218,15 +249,15 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
         <motion.div
           initial={false}
           animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          className="absolute inset-x-0 bottom-0 p-6"
+          className="absolute inset-x-0 bottom-0 p-4 md:p-6"
         >
           <div className="flex items-center justify-between mb-2">
-            <h3 className={`font-bold text-white ${item.size === 'large' ? 'text-2xl' : 'text-xl'}`}>
+            <h3 className={`font-bold text-white ${item.size === 'large' || item.size === 'wide' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}`}>
               {item.title}
             </h3>
             <RiArrowRightUpLine className="text-primary text-xl" />
           </div>
-          <p className={`text-white/80 ${item.size === 'large' ? 'text-base' : 'text-sm'}`}>
+          <p className={`text-white/80 ${item.size === 'large' || item.size === 'wide' ? 'text-sm md:text-base' : 'text-xs md:text-sm'}`}>
             {item.description}
           </p>
         </motion.div>
@@ -237,9 +268,9 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
           <div className={`rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center ${
-            item.size === 'large' ? 'w-16 h-16' : 'w-12 h-12'
+            item.size === 'large' ? 'w-12 h-12 md:w-16 md:h-16' : 'w-10 h-10 md:w-12 md:h-12'
           }`}>
-            <RiZoomInLine className={`text-white ${item.size === 'large' ? 'text-2xl' : 'text-xl'}`} />
+            <RiZoomInLine className={`text-white ${item.size === 'large' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}`} />
           </div>
         </motion.div>
       </motion.div>
@@ -250,7 +281,19 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
 const GalleryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const containerRef = useRef(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+
+  useEffect(() => {
+    // Fetch gallery items - this would be replaced with a real API call
+    const loadItems = async () => {
+      const items = await fetchGalleryItems();
+      setGalleryItems(items);
+    };
+    
+    loadItems();
+  }, []);
 
   const filteredItems = selectedCategory === 'all'
     ? galleryItems
@@ -329,29 +372,47 @@ const GalleryPage = () => {
       <section className="py-20">
         <div className="container mx-auto px-4">
           {/* Category Filter */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {categories.map((category) => (
-              <motion.button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === category.id
-                    ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                    : 'bg-white/[0.02] border border-white/10 backdrop-blur-sm text-white/70 hover:bg-white/[0.05]'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {category.label}
-              </motion.button>
-            ))}
+          <div className="flex items-center mb-4">
+            <label htmlFor="category" className="text-lg font-semibold text-gray-800">Filter by Category:</label>
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => setSelectedCategory(value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button className="ml-4">Add Category</Button>
           </div>
 
-          {/* Gallery Grid */}
+          {/* Date Filter */}
+          <div className="flex items-center mb-4">
+            <label htmlFor="startDate" className="text-lg font-semibold text-gray-800">Start Date:</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="ml-4 w-[240px] justify-start text-left font-normal">
+                  {startDate ? format(startDate, 'PPP') : 'Pick a date'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Gallery Grid - Proper Bento Grid Layout */}
           <LayoutGroup>
             <motion.div 
               layout
-              className="grid grid-cols-12 gap-6 md:gap-8"
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-auto"
+              ref={containerRef}
             >
               <AnimatePresence>
                 {filteredItems.map((item) => (
@@ -380,4 +441,4 @@ const GalleryPage = () => {
   );
 };
 
-export default GalleryPage; 
+export default GalleryPage;

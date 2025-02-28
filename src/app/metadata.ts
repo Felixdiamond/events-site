@@ -1,26 +1,61 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sparkling World Events",
-  description: "Premier event planning and management services in Nigeria",
-  keywords: "event planning, luxury events, wedding planning, corporate events, Nigeria events",
+  title: "Sparkling World Events | Premier Event Planning in Nigeria",
+  description: "Transform your special moments into extraordinary experiences with Nigeria's leading event planning service. From intimate gatherings to grand celebrations, we bring your vision to life with meticulous attention to detail and unparalleled creativity.",
+  keywords: "event planning, luxury events, wedding planning, corporate events, Nigerian events, event management, party planning, event coordination, Lagos events, celebration planning, event design, wedding coordination, corporate event planning, social events, event decoration",
   authors: [{ name: "Sparkling World Events" }],
   creator: "Sparkling World Events",
   publisher: "Sparkling World Events",
-  robots: "index, follow",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   themeColor: "#1a1a1a",
-  viewport: "width=device-width, initial-scale=1",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  category: 'Event Planning',
   openGraph: {
     type: "website",
     locale: "en_NG",
     url: "https://sparklingworldevents.com",
-    title: "Sparkling World Events",
-    description: "Premier event planning and management services in Nigeria",
+    title: "Sparkling World Events | Premier Event Planning in Nigeria",
+    description: "Transform your special moments into extraordinary experiences with Nigeria's leading event planning service. Expert event planning for weddings, corporate events, and social gatherings.",
     siteName: "Sparkling World Events",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Sparkling World Events - Premier Event Planning Services",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sparkling World Events",
-    description: "Premier event planning and management services in Nigeria",
+    title: "Sparkling World Events | Premier Event Planning",
+    description: "Transform your special moments into extraordinary experiences. Expert event planning for weddings, corporate events, and social gatherings in Nigeria.",
+    images: ["/images/twitter-image.jpg"],
+    creator: "@sparklingworldevents",
+    site: "@sparklingworldevents",
+  },
+  verification: {
+    google: "your-google-site-verification",
+    other: {
+      me: ["@sparklingworldevents"],
+    },
+  },
+  alternates: {
+    canonical: "https://sparklingworldevents.com",
   },
 }; 

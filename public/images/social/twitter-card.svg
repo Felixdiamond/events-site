@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1200" height="600" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <rect width="1200" height="600" fill="url(#gradient)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="100" r="250" fill="url(#glow1)" opacity="0.1"/>
+  <circle cx="1100" cy="500" r="200" fill="url(#glow2)" opacity="0.15"/>
+  
+  <!-- Content container -->
+  <g transform="translate(100, 150)">
+    <!-- Logo/Brand -->
+    <text x="500" y="0" font-family="Arial" font-size="24" fill="white" text-anchor="middle">@sparklingworldevents</text>
+    
+    <!-- Main title -->
+    <text x="500" y="80" font-family="Arial" font-weight="bold" font-size="64" fill="white" text-anchor="middle">Creating Magical</text>
+    <text x="500" y="150" font-family="Arial" font-weight="bold" font-size="64" fill="url(#textGradient)" text-anchor="middle">Events &amp; Memories</text>
+    
+    <!-- Description -->
+    <text x="500" y="220" font-family="Arial" font-size="28" fill="white" text-anchor="middle" opacity="0.9">Transform your special moments into extraordinary experiences</text>
+  </g>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="1200" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#2a2a2a"/>
+    </linearGradient>
+    
+    <radialGradient id="glow1" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+    </radialGradient>
+    
+    <radialGradient id="glow2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+    </radialGradient>
+    
+    <linearGradient id="textGradient" x1="0" y1="0" x2="1000" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#FFE5B4"/>
+      <stop offset="100%" stop-color="#D4AF37"/>
+    </linearGradient>
+  </defs>
+</svg> 
