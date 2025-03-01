@@ -3,6 +3,8 @@ import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/config';
+import dbConnect from '@/lib/db';
+import { Image } from '@/models/Image';
 
 const BUCKET_NAME = process.env.R2_BUCKET || 'sparklingworldevents';
 const REGION = 'auto';
@@ -28,9 +30,11 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const category = formData.get('category') as string;
+    const eventDate = formData.get('eventDate') as string;
     
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    if (!file || !category || !eventDate) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Generate a safe filename
@@ -61,10 +65,20 @@ export async function POST(request: Request) {
       expiresIn: SIGNED_URL_EXPIRY,
     });
 
-    return NextResponse.json({
-      success: true,
+    // Store metadata in MongoDB
+    await dbConnect();
+    const image = await Image.create({
       key,
       url,
+      category,
+      eventDate: new Date(eventDate),
+      size: file.size,
+      uploadedAt: new Date(),
+    });
+
+    return NextResponse.json({
+      success: true,
+      image: image.toObject(),
     });
   } catch (error) {
     console.error('Error uploading image:', error);

@@ -8,11 +8,17 @@ import ShinyText from '@/components/common/ShinyText';
 import { FiMenu, FiX, FiInfo, FiGrid, FiPhone } from 'react-icons/fi';
 import { MdOutlineEventAvailable } from 'react-icons/md';
 import { RiServiceLine } from 'react-icons/ri';
+import { HiOutlineMail } from 'react-icons/hi';
+import { BiBell } from 'react-icons/bi';
+import { FaCalendarAlt } from 'react-icons/fa';
 
 const navLinks = [
   { href: '/about', label: 'About', icon: FiInfo },
   { href: '/services', label: 'Services', icon: RiServiceLine },
   { href: '/gallery', label: 'Gallery', icon: FiGrid },
+  { href: '/book', label: 'Book Event', icon: FaCalendarAlt },
+  { href: '/reminders', label: 'Reminders', icon: BiBell },
+  { href: '/newsletter', label: 'Newsletter', icon: HiOutlineMail },
   { href: '/contact', label: 'Contact', icon: FiPhone },
 ];
 

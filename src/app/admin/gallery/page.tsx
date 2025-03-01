@@ -6,8 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { Loader2 } from 'lucide-react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { DatePickerDemo } from '@/components/ui/DatePicker';
+import { SelectSingleEventHandler } from 'react-day-picker';
 
 interface ImageMetadata {
   key: string;
@@ -26,11 +28,13 @@ export default function AdminGallery() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<number>(0);
   const [deletingKeys, setDeletingKeys] = useState<Set<string>>(new Set());
-  const [categoryFilter, setCategoryFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [newCategory, setNewCategory] = useState('');
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [addingCategory, setAddingCategory] = useState(false);
 
   const loadImages = async () => {
     // Prevent refreshing more than once every 5 seconds
@@ -42,7 +46,20 @@ export default function AdminGallery() {
       if (!isRefreshing) {
         setIsLoading(true);
       }
-      const response = await fetch('/api/images');
+
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (categoryFilter !== 'all') {
+        params.append('category', categoryFilter);
+      }
+      if (startDate) {
+        params.append('startDate', startDate.toISOString());
+      }
+      if (endDate) {
+        params.append('endDate', endDate.toISOString());
+      }
+
+      const response = await fetch(`/api/images?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch images');
       }
@@ -71,12 +88,30 @@ export default function AdminGallery() {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+      setError('Failed to load categories');
+    }
+  };
+
   // Load images on mount and when session changes
   useEffect(() => {
     if (session) {
       loadImages();
     }
   }, [session]);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   const handleUploadComplete = async (imageUrl: string) => {
     setShowUpload(false);
@@ -120,53 +155,98 @@ export default function AdminGallery() {
     loadImages(); // Reload images with the new filters applied
   };
 
-  const handleAddCategory = () => {
-    // Logic to add new category to the database or state
-    console.log('New category added:', newCategory);
-    setNewCategory(''); // Clear input after adding
-    setShowCategoryModal(false); // Close modal
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) {
+      setError('Category name is required');
+      return;
+    }
+
+    setAddingCategory(true);
+    try {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newCategory.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add category');
+      }
+
+      await loadCategories(); // Reload categories
+      setNewCategory(''); // Clear input
+      setShowCategoryModal(false); // Close modal
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add category');
+    } finally {
+      setAddingCategory(false);
+    }
+  };
+
+  const handleStartDateSelect: SelectSingleEventHandler = (date) => {
+    setStartDate(date || null);
+  };
+
+  const handleEndDateSelect: SelectSingleEventHandler = (date) => {
+    setEndDate(date || null);
   };
 
   return (
     <div className="min-h-screen bg-secondary pt-24 pb-12 px-4 md:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Filter UI */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center">
-            <label htmlFor="categoryFilter" className="mr-2 text-gray-200">Category:</label>
-            <select
-              id="categoryFilter"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="p-2 border border-gray-300 rounded bg-gray-800 text-white"
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[linear-gradient(110deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)_30%,rgba(255,255,255,0.05))] backdrop-blur-sm p-6 rounded-2xl border border-white/10">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="categoryFilter" className="text-sm text-white/60">Category</label>
+              <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value)}>
+                <SelectTrigger className="w-[200px] border-white/10 bg-white/5 text-white hover:bg-black/20">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent className="bg-secondary border-white/10">
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm text-white/60">Start Date</label>
+              <DatePickerDemo 
+                date={startDate}
+                onSelect={handleStartDateSelect}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm text-white/60">End Date</label>
+              <DatePickerDemo 
+                date={endDate}
+                onSelect={handleEndDateSelect}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="border-white/10 bg-white/5 text-white hover:bg-black/20"
+              onClick={() => setShowCategoryModal(true)}
             >
-              <option value="">All Categories</option>
-              <option value="Nature">Nature</option>
-              <option value="Events">Events</option>
-              <option value="Portraits">Portraits</option>
-              <option value="Other">Other</option>
-            </select>
-            <button onClick={() => setShowCategoryModal(true)} className="ml-2 px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Add Category</button>
+              Add Category
+            </Button>
+            <Button onClick={handleFilterChange}>
+              Apply Filters
+            </Button>
           </div>
-          <div className="flex items-center">
-            <label htmlFor="startDate" className="mr-2 text-gray-200">Start Date:</label>
-            <DatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              className="p-2 border border-gray-300 rounded bg-gray-800 text-white"
-              placeholderText="Select start date"
-            />
-          </div>
-          <div className="flex items-center">
-            <label htmlFor="endDate" className="mr-2 text-gray-200">End Date:</label>
-            <DatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date)}
-              className="p-2 border border-gray-300 rounded bg-gray-800 text-white"
-              placeholderText="Select end date"
-            />
-          </div>
-          <button onClick={handleFilterChange} className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition">Apply Filters</button>
         </div>
 
         {/* Category Modal */}
@@ -184,16 +264,56 @@ export default function AdminGallery() {
                 exit={{ scale: 0.9 }}
                 className="relative w-full max-w-md bg-secondary rounded-2xl p-6 border border-white/10"
               >
-                <h2 className="text-2xl font-bold text-white mb-4">Add New Category</h2>
-                <input
-                  type="text"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  placeholder="Enter new category"
-                  className="p-2 border border-gray-300 rounded bg-gray-800 text-white w-full"
-                />
-                <button onClick={handleAddCategory} className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">Add Category</button>
-                <button onClick={() => setShowCategoryModal(false)} className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">Cancel</button>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-white">Add New Category</h2>
+                  <Button
+                    variant="ghost"
+                    className="text-white/60 hover:text-white"
+                    onClick={() => setShowCategoryModal(false)}
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="categoryName" className="text-sm text-white/60">
+                      Category Name
+                    </label>
+                    <input
+                      id="categoryName"
+                      type="text"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      placeholder="Enter category name"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-md text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      className="w-full"
+                      onClick={handleAddCategory}
+                      disabled={addingCategory}
+                    >
+                      {addingCategory ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Add Category'
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full border-white/10 bg-white/5 text-white hover:bg-black/20"
+                      onClick={() => setShowCategoryModal(false)}
+                      disabled={addingCategory}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           )}

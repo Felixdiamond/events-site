@@ -5,6 +5,7 @@ import Lenis from '@studio-freight/lenis';
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { FuzzyOverlay } from '@/components/common/FuzzyOverlay';
+import { ChatWidget } from '@/components/chat/ChatWidget';
 
 export default function ClientRootLayout({
   children,
@@ -57,6 +58,7 @@ export default function ClientRootLayout({
         {children}
       </main>
       <Footer />
+      <ChatWidget />
       <FuzzyOverlay />
     </div>
   );

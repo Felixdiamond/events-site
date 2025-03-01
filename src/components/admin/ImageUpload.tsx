@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload } from 'lucide-react';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { DatePickerDemo } from '@/components/ui/DatePicker';
 
 interface ImageUploadProps {
   onUploadComplete: (imageUrl: string) => void;
@@ -24,65 +27,74 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [category, setCategory] = useState('');
-  const [eventDate, setEventDate] = useState('');
+  const [eventDate, setEventDate] = useState<Date | null>(null);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        console.error('Error loading categories:', err);
+        onError?.('Failed to load categories');
+      }
+    };
+
+    loadCategories();
+  }, [onError]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    console.log('[ImageUpload] onDrop triggered');
     const file = acceptedFiles[0];
-    if (!file) {
-      console.log('[ImageUpload] No file selected');
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      onError?.('File size exceeds 5MB limit');
       return;
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      console.log('[ImageUpload] File exceeds MAX_FILE_SIZE');
-      onError?.('File size exceeds 5MB limit');
+    if (!category || !eventDate) {
+      onError?.('Please select a category and event date');
       return;
     }
 
     // Create preview
     const objectUrl = URL.createObjectURL(file);
-    console.log('[ImageUpload] Created object URL:', objectUrl);
     setPreviewUrl(objectUrl);
     setUploading(true);
-    setUploadedImageUrl(null); // Clear any previous uploaded image
-    console.log('[ImageUpload] Uploading state set to true');
+    setUploadedImageUrl(null);
 
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('originalName', file.name);
       formData.append('category', category);
-      formData.append('eventDate', eventDate);
-      console.log('[ImageUpload] FormData prepared, starting upload');
+      formData.append('eventDate', eventDate.toISOString());
 
       const response = await fetch('/api/images/upload', {
         method: 'POST',
         body: formData,
       });
-      console.log('[ImageUpload] Upload response received:', response.status);
 
       const data = await response.json();
-      console.log('[ImageUpload] Upload response data:', data);
+      console.log('Upload response:', data);
 
       if (!response.ok) {
-        console.log('[ImageUpload] Upload failed, throwing error');
         throw new Error(data.error || 'Upload failed');
       }
 
-      console.log('[ImageUpload] Upload successful, calling onUploadComplete with URL', data.url);
-      setUploadedImageUrl(data.url);
-      onUploadComplete(data.url);
+      setUploadedImageUrl(data.image.url);
+      onUploadComplete(data.image.url);
     } catch (error) {
-      console.log('[ImageUpload] Error during upload:', error);
       onError?.(error instanceof Error ? error.message : 'Upload failed');
     } finally {
-      console.log('[ImageUpload] Finalizing upload, cleaning up state');
       setUploading(false);
-      console.log('[ImageUpload] Uploading state set to false');
       URL.revokeObjectURL(objectUrl);
       setPreviewUrl(null);
-      console.log('[ImageUpload] Cleared preview URL');
     }
   }, [onUploadComplete, onError, category, eventDate]);
 
@@ -96,7 +108,33 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-6">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm text-white/60">Category</label>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger className="w-full border-white/10 bg-white/5 text-white hover:bg-black/20">
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent className="bg-secondary border-white/10">
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.name}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm text-white/60">Event Date</label>
+          <DatePickerDemo 
+            date={eventDate}
+            onSelect={(date) => setEventDate(date || null)}
+          />
+        </div>
+      </div>
+
       <div
         {...getRootProps()}
         className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${
@@ -141,68 +179,27 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <svg
-                    className="w-8 h-8"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    />
-                  </svg>
+                  <Upload className="w-8 h-8" />
                 </motion.div>
               </div>
               <div>
-                <p className="text-lg font-medium text-gray-800">
+                <p className="text-lg font-medium text-white/80">
                   {isDragActive ? (
                     "Drop the image here"
                   ) : (
                     "Drag & drop an image here"
                   )}
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-white/60 mt-1">
                   or click to select a file
                 </p>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-white/40">
                 Supports: JPG, PNG, GIF, WebP (up to 5MB)
               </p>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      <div>
-        <label htmlFor="category" className="text-lg font-semibold text-gray-800">Category:</label>
-        <select
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-primary focus:border-primary transition duration-200 ease-in-out bg-gray-50 text-gray-800"
-        >
-          <option value="">Select a category</option>
-          <option value="Nature">Nature</option>
-          <option value="Events">Events</option>
-          <option value="Portraits">Portraits</option>
-          <option value="Other">Other</option>
-        </select>
-        <span className="text-red-500 text-sm">{!category && 'Category is required'}</span>
-
-        <label htmlFor="eventDate" className="text-lg font-semibold text-gray-800 mt-4">Event Date:</label>
-        <input
-          type="date"
-          id="eventDate"
-          value={eventDate}
-          onChange={(e) => setEventDate(e.target.value)}
-          required
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-primary focus:border-primary transition duration-200 ease-in-out bg-gray-50 text-gray-800"
-        />
-        <span className="text-red-500 text-sm">{!eventDate && 'Event date is required'}</span>
       </div>
     </div>
   );

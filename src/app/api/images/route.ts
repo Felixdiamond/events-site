@@ -4,17 +4,13 @@ import { GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/config';
-import { MongoClient } from 'mongodb';
+import dbConnect from '@/lib/db';
+import { Image } from '@/models/Image';
 
 const BUCKET_NAME = process.env.R2_BUCKET || 'sparklingworldevents';
 const REGION = 'auto';
 const ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
 const SIGNED_URL_EXPIRY = 24 * 3600; // 24 hours in seconds
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error('MONGODB_URI is not defined');
-}
 
 const s3Client = new S3Client({
   region: REGION,
@@ -25,87 +21,79 @@ const s3Client = new S3Client({
   },
 });
 
-const client = new MongoClient(MONGODB_URI);
-const dbName = 'yourDatabaseName'; // Replace with your actual database name
-
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Check if user is authenticated and is admin
-    const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+
+    console.log('API Request - Category:', category);
+    console.log('API Request - StartDate:', startDate);
+    console.log('API Request - EndDate:', endDate);
+
+    await dbConnect();
+
+    // Build query
+    const query: any = {};
+
+    if (category && category !== 'all') {
+      // Use exact match for category, but make it case-insensitive
+      query.category = { $regex: new RegExp(`^${category}$`, 'i') };
+      console.log('Using category filter:', category);
     }
 
-    // List images
-    const command = new ListObjectsV2Command({
-      Bucket: BUCKET_NAME,
-      Prefix: 'gallery/', // Only list images in the gallery folder
-    });
+    if (startDate || endDate) {
+      query.eventDate = {};
+      if (startDate) {
+        query.eventDate.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.eventDate.$lte = new Date(endDate);
+      }
+    }
 
-    const response = await s3Client.send(command);
-    const images = await Promise.all(
-      (response.Contents || [])
-        .filter(item => item.Key?.match(/\.(jpg|jpeg|png|gif|webp)$/i))
-        .map(async item => {
-          const key = item.Key!;
-          const getCommand = new GetObjectCommand({
-            Bucket: BUCKET_NAME,
-            Key: key,
-          });
+    console.log('MongoDB Query:', JSON.stringify(query));
 
-          try {
-            // Get signed URL for viewing
-            const url = await getSignedUrl(s3Client, getCommand, {
-              expiresIn: SIGNED_URL_EXPIRY,
-            });
+    const images = await Image.find(query)
+      .sort({ uploadedAt: -1 })
+      .lean();
 
-            return {
-              key,
-              url,
-              uploadedAt: item.LastModified || new Date(),
-              size: item.Size || 0,
-            };
-          } catch (error) {
-            console.error(`Error generating signed URL for ${key}:`, error);
-            return null;
-          }
-        })
-    );
+    console.log(`Found ${images.length} images matching query`);
 
-    // Filter out any failed URLs
-    const validImages = images.filter(img => img !== null);
-
-    return NextResponse.json(validImages);
+    return NextResponse.json(images);
   } catch (error) {
-    console.error('Error listing images:', error);
+    console.error('Error fetching images:', error);
     return NextResponse.json(
-      { error: 'Failed to list images' },
+      { error: 'Failed to fetch images' },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const key = searchParams.get('key');
+
+  if (!key) {
+    return NextResponse.json(
+      { error: 'Key parameter is required' },
+      { status: 400 }
+    );
+  }
+
   try {
-    // Check if user is authenticated and is admin
-    const session = await getServerSession(authOptions);
-    if (!session || (session.user as any).role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Delete from S3
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+      })
+    );
 
-    const { searchParams } = new URL(request.url);
-    const key = searchParams.get('key');
-
-    if (!key) {
-      return NextResponse.json({ error: 'Image key is required' }, { status: 400 });
-    }
-
-    const deleteCommand = new DeleteObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-    });
-
-    await s3Client.send(deleteCommand);
+    // Delete from MongoDB
+    await dbConnect();
+    await Image.deleteOne({ key });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -115,40 +103,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     );
   }
-}
-
-export async function POST(request: Request) {
-  const formData = await request.formData();
-  const file = formData.get('file') as File;
-  const originalName = formData.get('originalName') as string;
-  const category = formData.get('category') as string;
-  const eventDate = formData.get('eventDate') as string;
-
-  // Validate inputs
-  if (!file || !originalName || !category || !eventDate) {
-    return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
-  }
-
-  // Upload logic here...
-  const imageMetadata = {
-    key: file.name,
-    url: `https://your-bucket-url/${file.name}`,
-    uploadedAt: new Date().toISOString(),
-    category,
-    eventDate,
-  };
-
-  try {
-    await client.connect();
-    const db = client.db(dbName);
-    const collection = db.collection('images'); // Replace with your actual collection name
-    await collection.insertOne(imageMetadata);
-  } catch (error) {
-    console.error('Error saving image metadata to MongoDB:', error);
-    return NextResponse.json({ error: 'Failed to save image metadata' }, { status: 500 });
-  } finally {
-    await client.close();
-  }
-
-  return NextResponse.json({ success: true, image: imageMetadata });
 } 

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaWhatsapp, FaInstagram, FaFacebookF, FaLinkedinIn, FaPhone } from 'react-icons/fa';
 import { MdEmail, MdLocationOn } from 'react-icons/md';
+import NewsletterSignup from '@/components/common/NewsletterSignup';
 
 const SocialLink = ({ href, icon: Icon, label }: { href: string; icon: any; label: string }) => (
   <motion.a
@@ -66,7 +67,7 @@ const Footer = () => {
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 py-20">
           {/* Company Info */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-3 space-y-6">
             <motion.h3 
               className="text-3xl font-serif font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent"
               initial={{ opacity: 0, y: 20 }}
@@ -94,6 +95,7 @@ const Footer = () => {
               <li><FooterLink href="/services">Our Services</FooterLink></li>
               <li><FooterLink href="/gallery">Gallery</FooterLink></li>
               <li><FooterLink href="/contact">Contact Us</FooterLink></li>
+              <li><FooterLink href="/newsletter">Newsletter</FooterLink></li>
             </ul>
           </div>
 
@@ -109,7 +111,7 @@ const Footer = () => {
           </div>
 
           {/* Contact Info */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             <h4 className="text-lg font-semibold text-white">Get in Touch</h4>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
@@ -136,6 +138,11 @@ const Footer = () => {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Newsletter Signup */}
+          <div className="lg:col-span-3 space-y-6">
+            <NewsletterSignup variant="footer" />
           </div>
         </div>
 

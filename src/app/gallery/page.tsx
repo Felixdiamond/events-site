@@ -3,28 +3,34 @@
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { RiCloseLine, RiZoomInLine, RiArrowRightUpLine } from 'react-icons/ri';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-
-// Gallery categories and images
-const categories = [
-  { id: 'all', label: 'All Events' },
-  { id: 'weddings', label: 'Weddings' },
-  { id: 'corporate', label: 'Corporate' },
-  { id: 'social', label: 'Social Events' },
-  { id: 'burial', label: 'Burial Services' },
-  { id: 'decoration', label: 'Decorations' },
-];
+import { DatePickerDemo } from '@/components/ui/DatePicker';
+import { SelectSingleEventHandler } from 'react-day-picker';
+import { Loader2 } from 'lucide-react';
 
 type GallerySize = 'small' | 'wide' | 'tall' | 'large';
 type GalleryPosition = 'center' | 'top' | 'bottom';
 
+// Interface for API response
+interface ImageData {
+  _id: string;
+  key: string;
+  url: string;
+  category: string;
+  eventDate: string;
+  uploadedAt: string;
+  size: number;
+}
+
+// Interface for our gallery items
 interface GalleryItem {
-  id: number;
+  id: string;
   category: string;
   image: string;
   title: string;
@@ -32,155 +38,37 @@ interface GalleryItem {
   size: GallerySize;
   position?: GalleryPosition;
   accent?: string;
+  eventDate: Date;
 }
 
-// Fetch gallery data function - this would be replaced with a server call
-const fetchGalleryItems = async (): Promise<GalleryItem[]> => {
-  // Simulating server response
-  return [
-    {
-      id: 1,
-      category: 'weddings',
-      image: '/images/gallery/wedding-1.jpg',
-      title: 'Beachfront Wedding',
-      description: 'An elegant beachfront wedding celebration with stunning sunset views.',
-      size: 'large',
+// Map API data to gallery item format
+const mapImageToGalleryItem = (image: ImageData, index: number): GalleryItem => {
+  // Determine size based on index for visual variety
+  const sizes: GallerySize[] = ['small', 'wide', 'tall', 'large'];
+  const size = sizes[index % sizes.length];
+  
+  // Generate accent colors based on category
+  const accentColors = {
+    'Weddings': 'from-rose-500/20 to-primary/20',
+    'Corporate': 'from-blue-500/20 to-primary/20',
+    'Social Events': 'from-amber-500/20 to-primary/20',
+    'Burial Services': 'from-purple-500/20 to-primary/20',
+    'Decorations': 'from-emerald-500/20 to-primary/20',
+  };
+  
+  const eventDate = new Date(image.eventDate);
+  
+  return {
+    id: image._id || image.key,
+    category: image.category,
+    image: image.url,
+    title: `${image.category} Event`,
+    description: `Event from ${format(eventDate, 'MMMM yyyy')}`,
+    size,
       position: 'center',
-      accent: 'from-rose-500/20 to-primary/20',
-    },
-    {
-      id: 2,
-      category: 'corporate',
-      image: '/images/gallery/corporate-1.jpg',
-      title: 'Tech Summit 2023',
-      description: 'Annual technology conference with industry leaders.',
-      size: 'small',
-      position: 'center',
-      accent: 'from-blue-500/20 to-primary/20',
-    },
-    {
-      id: 3,
-      category: 'decoration',
-      image: '/images/gallery/decoration-1.jpg',
-      title: 'Floral Paradise',
-      description: 'Exquisite floral arrangements transforming spaces.',
-      size: 'wide',
-      position: 'center',
-      accent: 'from-emerald-500/20 to-primary/20',
-    },
-    {
-      id: 4,
-      category: 'burial',
-      image: '/images/gallery/burial-1.jpg',
-      title: 'Memorial Service',
-      description: 'A dignified celebration of life.',
-      size: 'tall',
-      position: 'center',
-      accent: 'from-purple-500/20 to-primary/20',
-    },
-    {
-      id: 5,
-      category: 'weddings',
-      image: '/images/gallery/wedding-2.jpg',
-      title: 'Garden Wedding',
-      description: 'A romantic garden wedding with enchanting floral arrangements.',
-      size: 'small',
-      position: 'center',
-      accent: 'from-pink-500/20 to-primary/20',
-    },
-    {
-      id: 6,
-      category: 'decoration',
-      image: '/images/gallery/decoration-2.jpg',
-      title: 'Royal Theme',
-      description: 'Luxurious venue transformation with royal aesthetics.',
-      size: 'large',
-      position: 'center',
-      accent: 'from-amber-500/20 to-primary/20',
-    },
-    {
-      id: 7,
-      category: 'burial',
-      image: '/images/gallery/burial-2.jpg',
-      title: 'Traditional Ceremony',
-      description: 'Cultural celebration honoring heritage.',
-      size: 'wide',
-      position: 'center',
-      accent: 'from-indigo-500/20 to-primary/20',
-    },
-    {
-      id: 8,
-      category: 'social',
-      image: '/images/gallery/social-2.jpg',
-      title: 'Birthday Gala',
-      description: 'Extravagant birthday celebration with custom entertainment.',
-      size: 'tall',
-      position: 'center',
-      accent: 'from-teal-500/20 to-primary/20',
-    },
-    {
-      id: 9,
-      category: 'weddings',
-      image: '/images/gallery/wedding-3.jpg',
-      title: 'Traditional Wedding',
-      description: 'A beautiful blend of modern and traditional ceremonies.',
-      size: 'small',
-      position: 'center',
-      accent: 'from-rose-500/20 to-primary/20',
-    },
-    {
-      id: 10,
-      category: 'corporate',
-      image: '/images/gallery/corporate-3.jpg',
-      title: 'Annual Gala',
-      description: 'Corporate excellence awards and celebration.',
-      size: 'wide',
-      position: 'center',
-      accent: 'from-blue-500/20 to-primary/20',
-    },
-  ];
-};
-
-const GalleryModal = ({ item, onClose }: { item: GalleryItem; onClose: () => void }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.8, opacity: 0 }}
-        className="relative max-w-7xl w-full bg-secondary/80 backdrop-blur-2xl rounded-2xl overflow-hidden border border-white/10"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="relative aspect-video">
-          <Image
-            src={item.image}
-            alt={item.title}
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-secondary via-transparent to-transparent opacity-60" />
-        </div>
-        <div className="p-8 space-y-4">
-          <h3 className="text-3xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
-            {item.title}
-          </h3>
-          <p className="text-white/70 text-lg">{item.description}</p>
-        </div>
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-        >
-          <RiCloseLine size={24} />
-        </button>
-      </motion.div>
-    </motion.div>
-  );
+    accent: accentColors[image.category as keyof typeof accentColors] || 'from-primary/20 to-transparent',
+    eventDate,
+  };
 };
 
 // Utility function to get size classes based on item size
@@ -199,27 +87,17 @@ const getSizeClasses = (size: GallerySize): string => {
   }
 };
 
-// Utility function to get aspect ratios based on item size
-const getAspectRatio = (size: GallerySize): string => {
-  switch (size) {
-    case 'small':
-      return 'aspect-[4/3]';
-    case 'wide':
-      return 'aspect-[16/9]';
-    case 'tall':
-      return 'aspect-[3/4]';
-    case 'large':
-      return 'aspect-square';
-    default:
-      return 'aspect-square';
-  }
-};
-
 const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => void }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter();
   
   const sizeClass = getSizeClasses(item.size);
-  const aspectRatio = getAspectRatio(item.size);
+
+  const handleClick = () => {
+    // Navigate to event detail page with proper encoding
+    console.log('Navigating to category:', item.category);
+    router.push(`/gallery/event/${encodeURIComponent(item.category)}`);
+  };
 
   return (
     <motion.div
@@ -227,13 +105,13 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className={`relative ${sizeClass} h-full`}
+      className={`relative ${sizeClass}`}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      onClick={onSelect}
+      onClick={handleClick}
     >
       <motion.div 
-        className={`relative ${aspectRatio} rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer h-full`}
+        className="relative h-full w-full rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer"
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.3 }}
       >
@@ -278,26 +156,157 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
   );
 };
 
+// Loading skeleton for gallery items
+const GallerySkeleton = () => {
+  // Create an array of different sizes to mimic the bento grid
+  const skeletonSizes = [
+    'col-span-1 row-span-1', // small
+    'col-span-2 row-span-1', // wide
+    'col-span-1 row-span-2', // tall
+    'col-span-2 row-span-2', // large
+    'col-span-1 row-span-1',
+    'col-span-2 row-span-1',
+    'col-span-1 row-span-1',
+    'col-span-1 row-span-1',
+  ];
+
+  return (
+    <>
+      {skeletonSizes.map((size, index) => (
+        <div 
+          key={index} 
+          className={`${size} relative animate-pulse`}
+        >
+          <div className="h-full w-full rounded-2xl bg-white/[0.03] border border-white/10 overflow-hidden" />
+        </div>
+      ))}
+    </>
+  );
+};
+
+// Group images by category and select a representative image
+const groupImagesByCategory = (images: ImageData[]): GalleryItem[] => {
+  const categoryMap = new Map<string, ImageData[]>();
+  
+  // Group images by category
+  images.forEach(image => {
+    if (!categoryMap.has(image.category)) {
+      categoryMap.set(image.category, []);
+    }
+    categoryMap.get(image.category)!.push(image);
+  });
+  
+  // Create gallery items from grouped images
+  const galleryItems: GalleryItem[] = [];
+  let index = 0;
+  
+  categoryMap.forEach((categoryImages, category) => {
+    // Sort by date (newest first)
+    categoryImages.sort((a, b) => 
+      new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+    );
+    
+    // Select a representative image (newest one)
+    const representativeImage = categoryImages[0];
+    
+    // Create gallery item
+    galleryItems.push(mapImageToGalleryItem(representativeImage, index));
+    index++;
+  });
+  
+  return galleryItems;
+};
+
 const GalleryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const containerRef = useRef(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>(
+    [
+      { id: 'all', name: 'All Events' },
+    ]
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Fetch gallery items - this would be replaced with a real API call
-    const loadItems = async () => {
-      const items = await fetchGalleryItems();
-      setGalleryItems(items);
-    };
+  const handleStartDateSelect: SelectSingleEventHandler = (date) => {
+    setStartDate(date || null);
+  };
+
+  const handleEndDateSelect: SelectSingleEventHandler = (date) => {
+    setEndDate(date || null);
+  };
+
+  // Load images from API
+  const loadImages = async () => {
+    setIsLoading(true);
+    setError(null);
     
-    loadItems();
-  }, []);
+    try {
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (selectedCategory !== 'all') {
+        params.append('category', selectedCategory);
+      }
+      if (startDate) {
+        params.append('startDate', startDate.toISOString());
+      }
+      if (endDate) {
+        params.append('endDate', endDate.toISOString());
+      }
 
-  const filteredItems = selectedCategory === 'all'
-    ? galleryItems
-    : galleryItems.filter(item => item.category === selectedCategory);
+      const response = await fetch(`/api/images?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch images');
+      }
+      
+      const data = await response.json();
+      
+      // Group images by category if viewing all categories
+      if (selectedCategory === 'all') {
+        const groupedItems = groupImagesByCategory(data);
+        setGalleryItems(groupedItems);
+      } else {
+        // Map API data to gallery items
+        const mappedItems = data.map((image: ImageData, index: number) => 
+          mapImageToGalleryItem(image, index)
+        );
+        setGalleryItems(mappedItems);
+      }
+    } catch (err) {
+      console.error('Error loading images:', err);
+      setError('Failed to load gallery images. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load categories from API
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      // Add "All Events" option
+      setCategories([
+        { id: 'all', name: 'All Events' },
+        ...data.map((cat: any) => ({ id: cat.name, name: cat.name }))
+      ]);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+      setError('Failed to load categories. Please try again later.');
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    loadCategories();
+    loadImages();
+  }, []);
 
   return (
     <div className="min-h-screen bg-secondary">
@@ -371,72 +380,104 @@ const GalleryPage = () => {
       {/* Gallery Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          {/* Category Filter */}
-          <div className="flex items-center mb-4">
-            <label htmlFor="category" className="text-lg font-semibold text-gray-800">Filter by Category:</label>
-            <Select
-              value={selectedCategory}
-              onValueChange={(value) => setSelectedCategory(value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
+          {/* Filter Controls */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-[linear-gradient(110deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)_30%,rgba(255,255,255,0.05))] backdrop-blur-sm p-6 rounded-2xl border border-white/10 mb-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="categoryFilter" className="text-sm text-white/60">Category</label>
+                <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value)}>
+                  <SelectTrigger className="w-[200px] border-white/10 bg-white/5 text-white hover:bg-black/20">
+                    <SelectValue placeholder="All Events" />
               </SelectTrigger>
-              <SelectContent>
+                  <SelectContent className="bg-secondary border-white/10">
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
-                    {category.label}
+                        {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button className="ml-4">Add Category</Button>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm text-white/60">Event Date</label>
+                <DatePickerDemo 
+                  date={startDate}
+                  onSelect={handleStartDateSelect}
+                />
+              </div>
           </div>
 
-          {/* Date Filter */}
-          <div className="flex items-center mb-4">
-            <label htmlFor="startDate" className="text-lg font-semibold text-gray-800">Start Date:</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="ml-4 w-[240px] justify-start text-left font-normal">
-                  {startDate ? format(startDate, 'PPP') : 'Pick a date'}
+            <Button 
+              className="bg-primary hover:bg-primary-dark text-white"
+              onClick={loadImages}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                'Apply Filters'
+              )}
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
-              </PopoverContent>
-            </Popover>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-red-400 mb-8">
+              {error}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && galleryItems.length === 0 && !error && (
+            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-lg border-2 border-dashed border-white/10 mb-8">
+              <svg
+                className="w-16 h-16 text-white/20 mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <h3 className="text-xl font-semibold text-white/80 mb-2">No Images Found</h3>
+              <p className="text-white/60 text-center max-w-md">
+                No images match your current filter criteria. Try changing your filters or check back later for new content.
+              </p>
+            </div>
+          )}
 
           {/* Gallery Grid - Proper Bento Grid Layout */}
           <LayoutGroup>
             <motion.div 
               layout
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-auto"
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[200px] grid-flow-dense"
               ref={containerRef}
             >
               <AnimatePresence>
-                {filteredItems.map((item) => (
-                  <GalleryItem
-                    key={item.id}
-                    item={item}
-                    onSelect={() => setSelectedItem(item)}
-                  />
-                ))}
+                {isLoading ? (
+                  <GallerySkeleton />
+                ) : (
+                  galleryItems.map((item) => (
+                    <GalleryItem
+                      key={item.id}
+                      item={item}
+                      onSelect={() => {}} // Empty function since we're not using the modal anymore
+                    />
+                  ))
+                )}
               </AnimatePresence>
             </motion.div>
           </LayoutGroup>
         </div>
       </section>
-
-      {/* Modal */}
-      <AnimatePresence>
-        {selectedItem && (
-          <GalleryModal
-            item={selectedItem}
-            onClose={() => setSelectedItem(null)}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 };
