@@ -5,12 +5,12 @@ import Reminder from '@/models/Reminder';
 // Update a reminder by ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     
-    const id = params.id;
+    const id = (await params).id;
     const body = await request.json();
     
     // Find and update the reminder
@@ -48,12 +48,12 @@ export async function PUT(
 // Delete a reminder by ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     
-    const id = params.id;
+    const id = (await params).id;
     
     // Find and delete the reminder
     const reminder = await Reminder.findByIdAndDelete(id);
@@ -80,12 +80,12 @@ export async function DELETE(
 // Get a reminder by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     
-    const id = params.id;
+    const id = (await params).id;
     
     // Find the reminder
     const reminder = await Reminder.findById(id);
@@ -105,4 +105,4 @@ export async function GET(
       { status: 500 }
     );
   }
-} 
+}

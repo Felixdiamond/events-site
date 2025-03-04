@@ -1,17 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useController } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format, addDays, isBefore, parse } from 'date-fns';
-import { Loader2, Calendar, Users, Clock, Info, Mail } from 'lucide-react';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { Mail, Users } from 'lucide-react';
+import { format, parse, set } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { motion, AnimatePresence } from 'framer-motion';
 import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
-import { DatePickerDemo } from '@/components/ui/DatePicker';
+import { DateTimePicker } from '@/components/ui/DateTimePicker';
+import { Loader2, Calendar, Clock, Info } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 
 // Form validation schema
 const bookingFormSchema = z.object({
@@ -25,11 +28,10 @@ const bookingFormSchema = z.object({
   }).refine(date => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return isBefore(today, date);
+    return date > today;
   }, {
     message: 'Event date must be in the future',
   }),
-  eventTime: z.string().min(1, 'Please select a time'),
   guestCount: z.preprocess(
     (val) => parseInt(String(val), 10),
     z.number().min(1, 'Please enter a valid number of guests')
@@ -52,15 +54,6 @@ const eventTypeOptions: SelectOption[] = [
   { value: 'Other', label: 'Other' },
 ];
 
-// Time options for the select
-const timeOptions: SelectOption[] = Array.from({ length: 24 * 4 }).map((_, index) => {
-  const hour = Math.floor(index / 4);
-  const minute = (index % 4) * 15;
-  const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-  const displayTime = format(parse(time, 'HH:mm', new Date()), 'h:mm a');
-  return { value: time, label: displayTime };
-});
-
 export default function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -73,7 +66,6 @@ export default function BookingPage() {
       email: '',
       phone: '',
       eventType: '',
-      eventTime: '',
       guestCount: undefined,
       specialRequests: '',
     },
@@ -85,17 +77,12 @@ export default function BookingPage() {
     setErrorMessage('');
     
     try {
-      // Format the date and time for submission
-      const eventDateTime = new Date(data.eventDate);
-      const [hours, minutes] = data.eventTime.split(':').map(Number);
-      eventDateTime.setHours(hours, minutes);
-      
       const bookingData = {
         name: data.name,
         email: data.email,
         phone: data.phone,
         eventType: data.eventType,
-        eventDate: eventDateTime.toISOString(),
+        eventDate: data.eventDate.toISOString(),
         guestCount: Number(data.guestCount),
         specialRequests: data.specialRequests,
       };
@@ -290,49 +277,24 @@ export default function BookingPage() {
                     )}
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="eventDate" className="block text-sm font-medium mb-1">
-                        Event Date <span className="text-red-500">*</span>
-                      </label>
-                      <Controller
-                        name="eventDate"
-                        control={control}
-                        render={({ field }) => (
-                          <DatePickerDemo
-                            date={field.value}
-                            onSelect={field.onChange}
-                            className="w-full"
-                          />
-                        )}
-                      />
-                      {errors.eventDate && (
-                        <p className="text-red-500 text-xs mt-1">{errors.eventDate.message}</p>
+                  <div>
+                    <label htmlFor="eventDate" className="block text-sm font-medium mb-1">
+                      Event Date <span className="text-red-500">*</span>
+                    </label>
+                    <Controller
+                      name="eventDate"
+                      control={control}
+                      render={({ field }) => (
+                        <DateTimePicker
+                          date={field.value}
+                          onSelect={field.onChange}
+                          className="w-full"
+                        />
                       )}
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="eventTime" className="block text-sm font-medium mb-1">
-                        Event Time <span className="text-red-500">*</span>
-                      </label>
-                      <Controller
-                        name="eventTime"
-                        control={control}
-                        render={({ field }) => (
-                          <CustomSelect
-                            id="eventTime"
-                            options={timeOptions}
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Select a time"
-                            error={!!errors.eventTime}
-                          />
-                        )}
-                      />
-                      {errors.eventTime && (
-                        <p className="text-red-500 text-xs mt-1">{errors.eventTime.message}</p>
-                      )}
-                    </div>
+                    />
+                    {errors.eventDate && (
+                      <p className="text-red-500 text-xs mt-1">{errors.eventDate.message}</p>
+                    )}
                   </div>
                   
                   <div>
@@ -357,14 +319,19 @@ export default function BookingPage() {
                   
                   <div>
                     <label htmlFor="specialRequests" className="block text-sm font-medium mb-1">
-                      Special Requests (Optional)
+                      Additional Notes (if any)
                     </label>
-                    <Textarea
-                      id="specialRequests"
-                      rows={4}
-                      placeholder="Any special requirements or additional information"
-                      {...register('specialRequests')}
-                      className="w-full px-3 py-2 bg-secondary border border-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    <Controller
+                      name="specialRequests"
+                      control={control}
+                      render={({ field }) => (
+                        <Textarea
+                          id="specialRequests"
+                          placeholder="Any special requirements or additional information"
+                          {...field}
+                          className="min-h-[80px]"
+                        />
+                      )}
                     />
                   </div>
                   

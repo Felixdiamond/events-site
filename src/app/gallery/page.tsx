@@ -8,10 +8,22 @@ import { RiCloseLine, RiZoomInLine, RiArrowRightUpLine } from 'react-icons/ri';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, isBefore, isAfter, parseISO } from 'date-fns';
+import { 
+  Search, 
+  Filter, 
+  X, 
+  Camera, 
+  ArrowLeft, 
+  ArrowRight,
+  Download, 
+  Share, 
+  Info, 
+  ZoomIn, 
+  XCircle
+} from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { DatePickerDemo } from '@/components/ui/DatePicker';
-import { SelectSingleEventHandler } from 'react-day-picker';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { Loader2 } from 'lucide-react';
 
 type GallerySize = 'small' | 'wide' | 'tall' | 'large';
@@ -231,11 +243,11 @@ const GalleryPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const handleStartDateSelect: SelectSingleEventHandler = (date) => {
+  const handleStartDateSelect = (date: Date | undefined) => {
     setStartDate(date || null);
   };
 
-  const handleEndDateSelect: SelectSingleEventHandler = (date) => {
+  const handleEndDateSelect = (date: Date | undefined) => {
     setEndDate(date || null);
   };
 
@@ -401,7 +413,7 @@ const GalleryPage = () => {
 
               <div className="flex flex-col gap-2">
                 <label className="text-sm text-white/60">Event Date</label>
-                <DatePickerDemo 
+                <DatePicker 
                   date={startDate}
                   onSelect={handleStartDateSelect}
                 />

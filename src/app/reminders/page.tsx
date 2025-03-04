@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 import { format, addDays, addHours, addWeeks } from 'date-fns';
 import { Loader2, Calendar, Bell, Clock, Trash2, Edit2, Info, Clock1, Clock3, Clock12, CalendarDays, CalendarRange } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
 import { CustomRadioGroup, RadioOption } from '@/components/ui/custom-radio';
+import { DateTimePicker } from '@/components/ui/DateTimePicker';
 
 // Form validation schema
 const reminderFormSchema = z.object({
@@ -162,9 +164,9 @@ export default function RemindersPage() {
   };
   
   // Find event image URL based on eventId
-  const findEventImageUrl = (eventId: string): string | undefined => {
+  const findEventImageUrl = (eventId: string): string => {
     const event = events.find(e => e._id === eventId);
-    return event?.imageUrl;
+    return event?.imageUrl || "/images/placeholder.jpg";
   };
   
   // Handle form submission
@@ -368,10 +370,11 @@ export default function RemindersPage() {
                         transition={{ duration: 0.5 }}
                         className="absolute inset-0"
                       >
-                        <img
+                        <Image
                           src={selectedEvent.imageUrl}
                           alt={selectedEvent.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
                           onError={(e) => {
                             // Fallback if image fails to load
                             const target = e.target as HTMLImageElement;
@@ -428,11 +431,15 @@ export default function RemindersPage() {
                       <label htmlFor="customDate" className="block text-sm font-medium mb-1">
                         Custom Reminder Date <span className="text-red-500">*</span>
                       </label>
-                      <Input
-                        id="customDate"
-                        type="datetime-local"
-                        {...register('customDate')}
-                        className={errors.customDate ? 'border-red-500' : ''}
+                      <Controller
+                        name="customDate"
+                        control={control}
+                        render={({ field }) => (
+                          <DateTimePicker
+                            date={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date?.toISOString())}
+                          />
+                        )}
                       />
                       {errors.customDate && (
                         <p className="text-red-500 text-xs mt-1">{errors.customDate.message}</p>
@@ -549,10 +556,11 @@ export default function RemindersPage() {
                           whileHover={{ scale: 1.1 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <img
+                          <Image
                             src={findEventImageUrl(reminder.eventId)}
                             alt={reminder.eventName}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                             onError={(e) => {
                               // Fallback if image fails to load
                               const target = e.target as HTMLImageElement;

@@ -7,12 +7,12 @@ if (!MONGODB_URI) {
 }
 
 interface Cached {
-  conn: typeof mongoose | null;
-  promise: Promise<typeof mongoose> | null;
+  conn: mongoose.Mongoose | null;
+  promise: Promise<mongoose.Mongoose> | null;
 }
 
 declare global {
-  var mongoose: { conn: null | typeof mongoose; promise: null | Promise<typeof mongoose> };
+  var mongoose: { conn: null | mongoose.Mongoose; promise: null | Promise<mongoose.Mongoose> };
 }
 
 let cached: Cached = global.mongoose || { conn: null, promise: null };

@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { format } from 'date-fns';
-import { motion } from 'framer-motion';
+import { useForm, Controller } from 'react-hook-form';
+import { format, parseISO } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Loader2, Calendar, Users, Mail, Phone, ArrowLeft, Check, X, Clock, Search, Filter, ChevronDown, ExternalLink } from 'lucide-react';
+import { Loader2, Search, Filter, X, Mail, Calendar, Phone, Check, XCircle, Users, ArrowLeft, ChevronDown, ExternalLink, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
-import { DatePickerDemo } from '@/components/ui/DatePicker';
+import { DateTimePicker } from '@/components/ui/DateTimePicker';
 
 interface Booking {
   _id: string;
@@ -65,6 +66,7 @@ export default function AdminBookingsPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   // Fetch all bookings
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchBookings = async () => {
     try {
       setIsLoading(true);
@@ -89,7 +91,7 @@ export default function AdminBookingsPage() {
     if (session) {
       fetchBookings();
     }
-  }, [session]);
+  }, [session, fetchBookings]);
   
   // Apply filters
   useEffect(() => {
@@ -315,9 +317,9 @@ export default function AdminBookingsPage() {
                 <label className="block text-sm font-medium mb-1">
                   Event Date
                 </label>
-                <DatePickerDemo
+                <DateTimePicker
                   date={dateFilter}
-                  onSelect={(date) => setDateFilter(date)}
+                  onSelect={(date) => setDateFilter(date ?? null)}
                   className="w-full"
                 />
               </div>

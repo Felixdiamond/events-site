@@ -4,7 +4,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Default sender email
-const DEFAULT_FROM_EMAIL = 'onboarding@resend.dev';
+const DEFAULT_FROM_EMAIL = 'send@sparklingworldevents.com';
 
 /**
  * Send a single email

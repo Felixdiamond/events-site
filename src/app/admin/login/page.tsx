@@ -27,7 +27,7 @@ export default function AdminLogin() {
       if (result?.error) {
         setError('Invalid credentials');
       } else {
-        router.push('/admin/gallery');
+        router.push('/admin');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');

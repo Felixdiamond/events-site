@@ -30,7 +30,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ messages: [] });
     }
 
-    // Fetch messages for the conversation
+    // Get messages for conversation
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database connection error' }, { status: 500 });
+    }
+    
     const { data: messages, error } = await supabaseAdmin
       .from('messages')
       .select('*')
@@ -43,25 +47,30 @@ export async function GET(req: NextRequest) {
 
     // Mark customer messages as read
     const unreadMessages = (messages || []).filter(
-      (msg) => msg.sender_type === 'customer' && !msg.read
+      (msg: any) => msg.sender_type === 'customer' && !msg.read
     );
 
     if (unreadMessages.length > 0 && supabaseAdmin) {
       // Update read status for all unread messages
       await Promise.all(
-        unreadMessages.map((msg) =>
-          supabaseAdmin
-            .from('messages')
-            .update({ read: true })
-            .eq('id', msg.id)
-        )
+        unreadMessages.map((msg: any) => {
+          if (supabaseAdmin) {
+            return supabaseAdmin
+              .from('messages')
+              .update({ read: true })
+              .eq('id', msg.id);
+          }
+          return Promise.resolve();
+        })
       );
 
       // Reset unread count for the conversation
-      await supabaseAdmin
-        .from('conversations')
-        .update({ unread_count: 0 })
-        .eq('id', conversationId);
+      if (supabaseAdmin) {
+        await supabaseAdmin
+          .from('conversations')
+          .update({ unread_count: 0 })
+          .eq('id', conversationId);
+      }
     }
 
     return NextResponse.json({ messages: messages || [] });
@@ -100,7 +109,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Add message to database
+    // Create a new message
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database connection error' }, { status: 500 });
+    }
+    
     const { data: messageData, error: msgError } = await supabaseAdmin
       .from('messages')
       .insert([
@@ -120,14 +133,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Update conversation with last message
-    await supabaseAdmin
-      .from('conversations')
-      .update({
-        last_message: content,
-        last_message_time: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', conversationId);
+    if (supabaseAdmin) {
+      await supabaseAdmin
+        .from('conversations')
+        .update({
+          last_message: content,
+          last_message_time: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', conversationId);
+    }
 
     return NextResponse.json({ message: messageData });
   } catch (error) {

@@ -10,17 +10,18 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          50: '#FFF9E6',
-          100: '#FFF3CC',
-          200: '#FFE799',
-          300: '#FFD966',
-          400: '#FFCC33',
-          DEFAULT: '#D4AF37', // Refined gold
-          light: '#E5C355', // New light variant
-          600: '#BF9B30',
-          700: '#8C7223',
-          800: '#594817',
-          900: '#261F0A',
+          50: '#FFF5EF',  // Softest tint
+          100: '#FFE7DA',
+          200: '#FFCEB3',
+          300: '#F5A57F', 
+          400: '#E47B4E',
+          DEFAULT: '#C65A2D', // Muted, premium orange
+          light: '#D86C3B', // Lighter refined orange
+          dark: '#A84A25', // Darker shade for hover states
+          600: '#A84A25',
+          700: '#7E371B',
+          800: '#552312',
+          900: '#2D1009',
         },
         secondary: {
           50: '#F7F7F7',
@@ -29,10 +30,16 @@ const config: Config = {
           300: '#A4A4A4',
           400: '#818181',
           DEFAULT: '#1A1A1A',
+          dark: '#0A0A0A', // Darker shade for hover states
           600: '#141414',
           700: '#0F0F0F',
           800: '#0A0A0A',
           900: '#050505',
+        },
+        destructive: {
+          DEFAULT: "#FF5252",
+          dark: "#D32F2F", // Darker shade for hover states
+          foreground: "#FFFFFF",
         },
         accent: {
           light: '#FFFFFF',

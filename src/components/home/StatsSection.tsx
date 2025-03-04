@@ -58,7 +58,7 @@ const StatsSection = () => {
             key={i}
                 className="absolute w-[50%] h-[200%] blur-[100px]"
             style={{
-                  background: 'linear-gradient(to right, transparent, rgba(212, 175, 55, 0.08), transparent)',
+                  background: 'linear-gradient(to right, transparent, rgba(198, 90, 45, 0.08), transparent)',
                   left: `${i * 30}%`,
                   top: '-50%',
                   transform: 'rotate(35deg)',

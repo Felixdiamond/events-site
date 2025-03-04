@@ -18,20 +18,25 @@ import {
   Calendar, 
   MessageCircle,
   Loader2, 
-  Inbox
+  Inbox,
+  Ban
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
+import { supabase } from '@/lib/supabase-client';
 
 interface Conversation {
   id: string;
   customer_email: string;
-  customer_name: string;
+  customer_name?: string;
   status: 'active' | 'closed';
   last_message?: string;
   last_message_time?: string;
   unread_count: number;
   created_at: string;
   updated_at: string;
+  closed_at?: string;
+  closed_reason?: string;
+  last_activity?: string;
 }
 
 interface Message {
@@ -62,11 +67,15 @@ export default function AdminChatPage() {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'closed'>('all');
+  const [conversationDetails, setConversationDetails] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
   
   // Scroll to bottom of messages
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
   };
   
   // Fetch conversations
@@ -103,6 +112,7 @@ export default function AdminChatPage() {
   };
   
   // Fetch messages for active conversation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchMessages = async (conversationId: string) => {
     try {
       // Use our new API endpoint
@@ -118,12 +128,14 @@ export default function AdminChatPage() {
         
         // Update conversation in the list to reset unread count
         if (data.messages.length > 0) {
-          setConversations(conversations.map((convo) =>
-            convo.id === conversationId ? { ...convo, unread_count: 0 } : convo
-          ));
-          setFilteredConversations(
+          setConversations(prevConversations => 
+            prevConversations.map((convo) =>
+              convo.id === conversationId ? { ...convo, unread_count: 0 } : convo
+            )
+          );
+          setFilteredConversations(prevFiltered => 
             filterConversations(
-              conversations.map((convo) =>
+              prevFiltered.map((convo) =>
                 convo.id === conversationId ? { ...convo, unread_count: 0 } : convo
               ),
               searchTerm,
@@ -132,9 +144,6 @@ export default function AdminChatPage() {
           );
         }
       }
-      
-      // Scroll to bottom
-      setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -156,32 +165,205 @@ export default function AdminChatPage() {
     }
   };
   
-  // Initial data fetch
+  // Set up realtime subscription for conversations
   useEffect(() => {
-    fetchConversations();
-    fetchQuickReplies();
+    // Subscribe to all conversation changes
+    const conversationChannel = supabase
+      .channel('admin-conversations')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen for all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'conversations',
+        },
+        (payload) => {
+          // Handle different event types
+          if (payload.eventType === 'INSERT') {
+            // New conversation
+            setConversations(prev => [payload.new as Conversation, ...prev]);
+            setFilteredConversations(filterConversations(
+              [payload.new as Conversation, ...conversations],
+              searchTerm,
+              statusFilter
+            ));
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedConvo = payload.new as Conversation;
+            
+            // Update conversations list with the updated conversation
+            setConversations(prev => prev.map(convo => 
+              convo.id === updatedConvo.id ? updatedConvo : convo
+            ));
+            
+            // Only update filtered conversations if it should still be in the list
+            // based on the current filter
+            if (
+              statusFilter === 'all' || 
+              updatedConvo.status === statusFilter
+            ) {
+              setFilteredConversations(prev => prev.map(convo => 
+                convo.id === updatedConvo.id ? updatedConvo : convo
+              ));
+            } else {
+              // Remove from filtered list if it no longer matches the filter
+              setFilteredConversations(prev => 
+                prev.filter(convo => convo.id !== updatedConvo.id)
+              );
+            }
+            
+            // If this is the active conversation, update it
+            if (activeConversation && activeConversation.id === updatedConvo.id) {
+              // If the conversation was closed, clear the active conversation
+              if (updatedConvo.status === 'closed' && activeConversation.status === 'active') {
+                setActiveConversation(null);
+                setMessages([]);
+              } else {
+                setActiveConversation(updatedConvo);
+              }
+            }
+          } else if (payload.eventType === 'DELETE') {
+            // Deleted conversation
+            setConversations(prev => prev.filter(convo => convo.id !== payload.old.id));
+            setFilteredConversations(prev => prev.filter(convo => convo.id !== payload.old.id));
+            
+            // If this was the active conversation, clear it
+            if (activeConversation && activeConversation.id === payload.old.id) {
+              setActiveConversation(null);
+              setMessages([]);
+            }
+          }
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(conversationChannel);
+    };
+  }, [conversations, searchTerm, statusFilter, activeConversation]);
+  
+  // Set up realtime subscription for messages when a conversation is active
+  useEffect(() => {
+    if (!activeConversation) return;
     
-    // Set up periodic refresh for conversations
-    const refreshInterval = setInterval(() => {
-      if (!activeConversation) {
-        fetchConversations();
-      }
-    }, 30000); // Refresh every 30 seconds
+    // Fetch initial messages
+    fetchMessages(activeConversation.id);
     
-    return () => clearInterval(refreshInterval);
-  }, [statusFilter, searchTerm]);
+    // Subscribe to message changes for this conversation
+    const messagesChannel = supabase
+      .channel(`messages-${activeConversation.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${activeConversation.id}`,
+        },
+        (payload) => {
+          // Add new message to the chat
+          setMessages(prev => [...prev, payload.new as Message]);
+          
+          // If it's a customer message, mark as read
+          if (payload.new.sender_type === 'customer') {
+            // Mark the message as read via API
+            fetch('/api/admin/messages/read', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                messageId: payload.new.id,
+              }),
+            }).catch(error => {
+              console.error('Error marking message as read:', error);
+            });
+            
+            // Update conversation in list to show it's been read
+            if (activeConversation) {
+              const updatedConvo = {
+                ...activeConversation,
+                unread_count: 0,
+                last_message: payload.new.content,
+                last_message_time: payload.new.created_at,
+              };
+              
+              setActiveConversation(updatedConvo);
+              
+              setConversations(conversations.map((convo) =>
+                convo.id === updatedConvo.id ? updatedConvo : convo
+              ));
+              
+              setFilteredConversations(
+                filterConversations(
+                  conversations.map((convo) =>
+                    convo.id === updatedConvo.id ? updatedConvo : convo
+                  ),
+                  searchTerm,
+                  statusFilter
+                )
+              );
+            }
+          }
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(messagesChannel);
+    };
+  }, [activeConversation]);
+  
+  // Initial data fetch - only once
+  useEffect(() => {
+    setIsLoading(true);
+    
+    // Fetch conversations and quick replies only once on initial load
+    Promise.all([
+      fetchConversations(),
+      fetchQuickReplies()
+    ]).finally(() => {
+      setIsLoading(false);
+    });
+  }, []); // Empty dependency array - run once
+  
+  // Apply filters when search term or status filter changes
+  useEffect(() => {
+    setFilteredConversations(
+      filterConversations(conversations, searchTerm, statusFilter)
+    );
+  }, [searchTerm, statusFilter, conversations]);
   
   // Fetch messages when active conversation changes
   useEffect(() => {
     if (activeConversation) {
       fetchMessages(activeConversation.id);
+    }
+  }, [activeConversation, fetchMessages]);
+  
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages]);
+  
+  // Format conversation details
+  useEffect(() => {
+    if (activeConversation) {
+      // Format the conversation details
+      const created = new Date(activeConversation.created_at);
+      let formattedDetails = `Started: ${format(created, 'MMM d, yyyy h:mm a')}`;
       
-      // Set up periodic refresh for messages
-      const refreshInterval = setInterval(() => {
-        fetchMessages(activeConversation.id);
-      }, 10000); // Refresh every 10 seconds
+      if (activeConversation.status === 'closed' && activeConversation.closed_at) {
+        const closed = new Date(activeConversation.closed_at);
+        formattedDetails += ` • Closed: ${format(closed, 'MMM d, yyyy h:mm a')}`;
+        
+        if (activeConversation.closed_reason) {
+          formattedDetails += ` • Reason: ${activeConversation.closed_reason}`;
+        }
+      }
       
-      return () => clearInterval(refreshInterval);
+      setConversationDetails(formattedDetails);
     }
   }, [activeConversation]);
   
@@ -270,9 +452,6 @@ export default function AdminChatPage() {
       
       // Clear message input
       setNewMessage('');
-      
-      // Scroll to bottom
-      setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -305,22 +484,40 @@ export default function AdminChatPage() {
       
       // Update local state
       if (data.conversation) {
-        setActiveConversation(data.conversation);
-        
-        // Update conversation in the list
-        setConversations(conversations.map((convo) =>
+        // Update the conversation in our lists
+        const updatedConversations = conversations.map((convo) =>
           convo.id === activeConversation.id ? data.conversation : convo
-        ));
+        );
         
+        setConversations(updatedConversations);
+        
+        // Update filtered list based on current filters
         setFilteredConversations(
           filterConversations(
-            conversations.map((convo) =>
-              convo.id === activeConversation.id ? data.conversation : convo
-            ),
+            updatedConversations,
             searchTerm,
             statusFilter
           )
         );
+        
+        // If closing, clear the active conversation
+        if (status === 'closed') {
+          setActiveConversation(null);
+          setMessages([]);
+          
+          // Force refresh the status filters
+          if (statusFilter === 'active') {
+            // Remove the closed conversation from the filtered list
+            setFilteredConversations(
+              filteredConversations.filter(
+                (convo) => convo.id !== activeConversation.id
+              )
+            );
+          }
+        } else {
+          // If updating to active, update the active conversation
+          setActiveConversation(data.conversation);
+        }
       }
     } catch (error) {
       console.error('Error updating conversation status:', error);
@@ -386,7 +583,7 @@ export default function AdminChatPage() {
                   placeholder="Search conversations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-white/5 border-white/10 pr-10"
+                  className="bg-white/5 border border-white/10 pr-10"
                 />
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40" size={18} />
               </div>
@@ -413,6 +610,9 @@ export default function AdminChatPage() {
                     {searchTerm || statusFilter !== 'all'
                       ? 'No conversations match your filters'
                       : 'No conversations yet'}
+                  </p>
+                  <p className="text-white/60 text-center mt-4">
+                    Inactive conversations are automatically closed after 1 hour of inactivity.
                   </p>
                 </div>
               ) : (
@@ -479,11 +679,7 @@ export default function AdminChatPage() {
                     </h2>
                     <p className="text-xs text-white/60 flex items-center gap-2">
                       <Calendar size={12} />
-                      Started {formatDistanceToNow(new Date(activeConversation.created_at))} ago
-                      <span className="flex items-center gap-1 ml-2">
-                        {statusIcon[activeConversation.status]}
-                        <span className="capitalize">{activeConversation.status}</span>
-                      </span>
+                      {conversationDetails}
                     </p>
                   </div>
                   
@@ -513,24 +709,63 @@ export default function AdminChatPage() {
                 </div>
                 
                 {/* Messages */}
-                <div className="flex-1 p-4 overflow-y-auto bg-white/[0.02]" style={{ scrollBehavior: 'smooth' }}>
-                  {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full p-4">
-                      <MessageCircle className="h-12 w-12 text-white/20 mb-4" />
-                      <p className="text-white/60 text-center">No messages yet</p>
+                <div 
+                  ref={messageContainerRef}
+                  className="flex-1 overflow-y-auto p-4 bg-secondary/30"
+                >
+                  <div className="flex flex-col space-y-4 min-h-full">
+                    {messages.length > 0 ? (
+                      messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${
+                            message.sender_type === 'admin' ? 'justify-end' : 'justify-start'
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[80%] rounded-lg p-3 ${
+                              message.sender_type === 'admin'
+                                ? 'bg-primary text-white'
+                                : 'bg-white/10 text-white'
+                            }`}
+                          >
+                            <div className="text-sm font-semibold mb-1">
+                              {message.sender_type === 'admin' ? 'Support Agent' : activeConversation?.customer_name}
+                            </div>
+                            <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+                            <div className="text-xs opacity-70 mt-1">
+                              {format(new Date(message.created_at), 'h:mm a')}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-white/60">
+                        <MessageCircle size={48} className="mb-2 opacity-40" />
+                        <p>No messages yet</p>
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </div>
+                
+                {/* Status */}
+                <div className="flex justify-between items-center px-4 py-2 border-t border-white/5">
+                  <div className="flex-1">
+                    <div className="text-xs text-white/60">
+                      <span className="flex items-center gap-1">
+                        {statusIcon[activeConversation.status]}
+                        <span className="capitalize">{activeConversation.status}</span>
+                      </span>
                     </div>
-                  ) : (
-                    messages.map((msg) => (
-                      <MessageBubble
-                        key={msg.id}
-                        content={msg.content}
-                        isAdmin={msg.sender_type === 'admin'}
-                        timestamp={new Date(msg.created_at)}
-                        isRead={msg.read}
-                      />
-                    ))
+                  </div>
+                  {activeConversation.status === 'active' && (
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="text-xs text-white/60">
+                        Send a message
+                      </span>
+                    </div>
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
                 
                 {/* Quick Replies */}
@@ -578,6 +813,24 @@ export default function AdminChatPage() {
                     )}
                   </Button>
                 </form>
+                
+                {/* Close Chat Button */}
+                {activeConversation && activeConversation.status === 'active' && (
+                  <div className="mt-4">
+                    <Button 
+                      variant="destructive" 
+                      className="w-full flex items-center justify-center gap-2"
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to close this conversation? The user will be notified and will need to start a new chat.')) {
+                          updateConversationStatus('closed');
+                        }
+                      }}
+                    >
+                      <Ban size={16} />
+                      Close Conversation
+                    </Button>
+                  </div>
+                )}
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-full p-4">
@@ -588,6 +841,9 @@ export default function AdminChatPage() {
                 <p className="text-white/60 text-center max-w-md">
                   Select a conversation from the list on the left to view and respond to customer messages.
                 </p>
+                <p className="text-white/60 text-center mt-4">
+                  Inactive conversations are automatically closed after 1 hour of inactivity.
+                </p>
               </div>
             )}
           </div>
@@ -595,4 +851,4 @@ export default function AdminChatPage() {
       </div>
     </div>
   );
-} 
+}

@@ -171,10 +171,10 @@ export default function AdminReminders() {
                 <h3 className="font-medium text-white">How to Send Reminders</h3>
                 <p className="text-white/70 mt-1">
                   Click the "Send Reminders Now" button to send reminders to all users who have upcoming events. 
-                  This will only send reminders that are due (scheduled within the next hour).
+                  This will send ALL pending reminders immediately, regardless of their scheduled date.
                 </p>
                 <p className="text-white/70 mt-2">
-                  <strong>Tip:</strong> You should click this button once a day to ensure all reminders are sent on time.
+                  <strong>Note:</strong> Use this feature with caution as it will send all unsent reminders at once.
                 </p>
               </div>
             </div>

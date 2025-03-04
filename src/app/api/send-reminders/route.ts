@@ -34,25 +34,9 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     
     // Find reminders that need to be sent:
-    // - reminderDate is in the past or today
-    // - reminderSent is false
+    // - All unsent reminders, regardless of date, when triggered from admin panel
     const remindersToSend = await Reminder.find({
-      $and: [
-        { reminderSent: false },
-        {
-          $or: [
-            // Reminders with date in the past
-            { reminderDate: { $lt: now } },
-            // Reminders due today
-            {
-              reminderDate: {
-                $gte: new Date(now.setHours(0, 0, 0, 0)),
-                $lte: new Date(now.setHours(23, 59, 59, 999))
-              }
-            }
-          ]
-        }
-      ]
+      reminderSent: false
     });
     
     console.log(`Found ${remindersToSend.length} reminders to send`);

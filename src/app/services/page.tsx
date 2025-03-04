@@ -1,10 +1,10 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { RiArrowRightLine, RiHeartLine, RiHomeHeartLine, RiPaletteLine, RiStore3Line } from 'react-icons/ri';
+import { RiArrowRightLine, RiHeartLine, RiHomeHeartLine, RiPaletteLine, RiStore3Line, RiInstagramLine } from 'react-icons/ri';
 
 const services = [
   {
@@ -96,6 +96,7 @@ const services = [
       'Setup & Breakdown',
     ],
     price: 'Starting from ₦150,000',
+    instagram: 'sparklingworldng',
   },
   {
     id: 'social',
@@ -119,10 +120,29 @@ const services = [
 
 const ServiceCard = ({ service, index }: { service: typeof services[0]; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const cardRef = useRef(null);
   const Icon = service.icon;
+
+  // Check if the screen size is mobile on component mount and when window resizes
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -137,7 +157,7 @@ const ServiceCard = ({ service, index }: { service: typeof services[0]; index: n
       />
       <div className="relative overflow-hidden rounded-2xl bg-white/[0.01] border border-white/10 backdrop-blur-sm">
         {/* Image Section */}
-        <div className="relative h-[300px] overflow-hidden">
+        <div className="relative h-[220px] sm:h-[250px] md:h-[300px] overflow-hidden">
           <Image
             src={service.image}
             alt={service.title}
@@ -147,12 +167,12 @@ const ServiceCard = ({ service, index }: { service: typeof services[0]; index: n
           <div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/50 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
           
           {/* Title Overlay */}
-          <div className="absolute inset-x-0 bottom-0 p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
-                <Icon className="text-2xl text-primary" />
+          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center">
+                <Icon className="text-xl sm:text-2xl text-primary" />
               </div>
-              <h3 className="text-3xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
                 {service.title}
               </h3>
             </div>
@@ -160,32 +180,45 @@ const ServiceCard = ({ service, index }: { service: typeof services[0]; index: n
         </div>
 
         {/* Content Section */}
-        <div className="p-6 space-y-6">
-          <p className="text-white/70 text-lg">{service.description}</p>
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <p className="text-base sm:text-lg text-white/70">{service.description}</p>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {service.features.map((feature, i) => (
               <motion.div
                 key={feature}
                 initial={{ opacity: 0, x: -10 }}
-                animate={isHovered ? { opacity: 1, x: 0 } : {}}
+                animate={(isHovered || isMobile) ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
                 className="flex items-center space-x-2"
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-primary/80" />
-                <span className="text-white/70">{feature}</span>
+                <span className="text-sm sm:text-base text-white/70">{feature}</span>
               </motion.div>
             ))}
           </div>
 
           {/* Price and CTA */}
-          <div className="pt-6 border-t border-white/10">
-            <div className="flex justify-between items-center">
-              <p className="text-primary font-medium">{service.price}</p>
-              <Link href={`/contact?service=${service.id}`}>
+          <div className="pt-4 sm:pt-6 border-t border-white/10">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div>
+                <p className="text-primary font-medium text-sm sm:text-base">{service.price}</p>
+                {service.instagram && (
+                  <a 
+                    href={`https://instagram.com/${service.instagram.replace('@', '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-white/70 hover:text-primary text-sm mt-2 transition-colors"
+                  >
+                    <RiInstagramLine className="text-lg" />
+                    <span>{service.instagram}</span>
+                  </a>
+                )}
+              </div>
+              <Link href={`/contact?service=${service.id}`} className="w-full sm:w-auto">
                 <motion.button
-                  className="flex items-center space-x-2 px-6 py-2 bg-primary/10 rounded-full group/btn overflow-hidden relative"
+                  className="flex items-center justify-center sm:justify-start space-x-2 px-4 sm:px-6 py-2 bg-primary/10 rounded-full group/btn overflow-hidden relative w-full sm:w-auto"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -224,7 +257,7 @@ const ServicesPage = () => {
   return (
     <div ref={containerRef} className="relative min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden pt-16 md:pt-0">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/80 to-secondary" />
           <div className="absolute inset-0 bg-[url('/images/texture.png')] bg-repeat bg-[length:32px_32px] opacity-[0.02]" />
@@ -265,17 +298,17 @@ const ServicesPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="inline-block mb-6"
+            className="inline-block mb-4 sm:mb-6"
           >
-            <div className="px-6 py-2 rounded-full bg-white/[0.03] backdrop-blur-sm border border-white/10">
-              <span className="text-sm text-primary-200 font-medium tracking-wider uppercase">
+            <div className="px-4 sm:px-6 py-1 sm:py-2 rounded-full bg-white/[0.03] backdrop-blur-sm border border-white/10">
+              <span className="text-xs sm:text-sm text-primary-200 font-medium tracking-wider uppercase">
                 Comprehensive Event Solutions
               </span>
             </div>
           </motion.div>
 
           <motion.h1 
-            className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent"
+            className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -283,7 +316,7 @@ const ServicesPage = () => {
             Our Services
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto"
+            className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -295,9 +328,9 @@ const ServicesPage = () => {
       </section>
 
       {/* Services Grid */}
-      <section className="relative py-32 bg-secondary">
+      <section className="relative py-20 md:py-32 bg-secondary">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {services.map((service, index) => (
               <ServiceCard key={service.id} service={service} index={index} />
             ))}
@@ -306,7 +339,7 @@ const ServicesPage = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="relative py-32 bg-secondary overflow-hidden">
+      <section className="relative py-20 md:py-32 bg-secondary overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 opacity-[0.02] bg-[url('/images/texture.png')] bg-repeat bg-[length:32px_32px]" />
           <motion.div
@@ -331,16 +364,16 @@ const ServicesPage = () => {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
               Let's Create Something Special
             </h2>
-            <p className="text-white/70 text-lg mb-8">
+            <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8">
               Ready to bring your vision to life? Contact us to discuss your event needs 
               and discover how we can make your dreams a reality.
             </p>
             <Link href="/contact">
               <motion.button
-                className="px-8 py-4 bg-primary text-white rounded-full font-medium shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white rounded-full font-medium shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -354,4 +387,4 @@ const ServicesPage = () => {
   );
 };
 
-export default ServicesPage; 
+export default ServicesPage;

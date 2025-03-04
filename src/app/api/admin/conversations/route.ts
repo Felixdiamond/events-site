@@ -87,7 +87,14 @@ export async function PUT(req: NextRequest) {
     // Update the conversation status
     const { data, error } = await supabaseAdmin
       .from('conversations')
-      .update({ status, updated_at: new Date().toISOString() })
+      .update({
+        status,
+        updated_at: new Date().toISOString(),
+        ...(status === 'closed' ? {
+          closed_at: new Date().toISOString(),
+          closed_reason: 'Closed by administrator'
+        } : {})
+      })
       .eq('id', id)
       .select()
       .single();

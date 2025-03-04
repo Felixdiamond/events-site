@@ -14,6 +14,13 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Database connection error' },
+        { status: 500 }
+      );
+    }
+    
     const { data, error } = await supabaseAdmin
       .from('quick_replies')
       .select('*')
@@ -42,6 +49,13 @@ export async function POST(request: NextRequest) {
       if (!session || (session.user as any).role !== 'admin') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
+    }
+    
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Database connection error' },
+        { status: 500 }
+      );
     }
     
     const { title, content, category } = await request.json();
@@ -84,6 +98,13 @@ export async function PUT(request: NextRequest) {
       }
     }
     
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Database connection error' },
+        { status: 500 }
+      );
+    }
+    
     const { id, title, content, category } = await request.json();
     
     if (!id || !title || !content) {
@@ -123,6 +144,13 @@ export async function DELETE(request: NextRequest) {
       if (!session || (session.user as any).role !== 'admin') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
+    }
+    
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Database connection error' },
+        { status: 500 }
+      );
     }
     
     const url = new URL(request.url);

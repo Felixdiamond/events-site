@@ -182,7 +182,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
                   </h3>
                   {testimonial.verified && (
                     <motion.div
-                      className="ml-2 text-primary"
+                      className="ml-2 text-accent-light"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: index * 0.1 + 0.2 }}
@@ -193,7 +193,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
                     </motion.div>
                   )}
                 </div>
-                <p className="text-primary/80 text-sm truncate">{testimonial.role}</p>
+                <p className="text-accent-light/80 text-sm truncate">{testimonial.role}</p>
                 <p className="text-white/60 text-xs truncate">{testimonial.company}</p>
               </div>
             </div>
@@ -225,7 +225,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <motion.div
                       key={i}
-                      className="w-4 h-4 text-primary"
+                      className="w-4 h-4 text-accent-light"
                       initial={{ opacity: 0, scale: 0 }}
                       animate={isInView ? { opacity: 1, scale: 1 } : {}}
                       transition={{ duration: 0.2, delay: index * 0.1 + i * 0.1 }}
@@ -245,7 +245,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
                 {testimonial.highlights.map((highlight, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary/90"
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-800 text-accent-light"
                   >
                     {highlight}
                   </span>
@@ -258,14 +258,14 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
           <motion.div
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{
-              background: 'radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 175, 55, 0.06), transparent 40%)',
+              background: 'radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.03), transparent 40%)',
             }}
           />
         </motion.div>
 
         {/* Background Glow */}
         <motion.div
-          className="absolute -inset-2 bg-primary/5 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"
+          className="absolute -inset-2 bg-accent-light/5 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"
         />
       </div>
     </motion.div>
@@ -313,12 +313,50 @@ const TestimonialsSection = () => {
     <section ref={sectionRef} className="relative py-32 overflow-hidden">
       {/* Luxury Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-secondary via-secondary to-secondary/95" />
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary-800 via-secondary to-secondary/95" />
         
         {/* Enhanced Animated Patterns */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 opacity-[0.02] bg-[url('/images/texture.png')] bg-repeat bg-[length:32px_32px]" />
           
+          {/* Primary Color Flowing Effect */}
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div 
+              className="absolute w-[200%] h-[200%] -top-[50%] -left-[50%]"
+              style={{
+                background: 'radial-gradient(ellipse at center, rgba(198, 90, 45, 0), rgba(198, 90, 45, 0.03) 25%, rgba(198, 90, 45, 0) 50%)',
+                transform: 'translate(-50%, -50%)',
+              }}
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.3, 0.7, 0.3],
+                rotate: [0, 45, 0]
+              }}
+              transition={{
+                duration: 15,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.div 
+              className="absolute w-[200%] h-[200%] -top-[50%] -left-[50%]"
+              style={{
+                background: 'radial-gradient(circle at center, rgba(198, 90, 45, 0), rgba(198, 90, 45, 0.025) 30%, rgba(198, 90, 45, 0) 60%)',
+              }}
+              animate={{
+                scale: [1.5, 1, 1.5],
+                opacity: [0.5, 0.2, 0.5],
+                rotate: [45, 0, 45]
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2
+              }}
+            />
+          </div>
+            
           {/* Enhanced Light Beams */}
           <div className="absolute inset-0 overflow-hidden">
             {[...Array(5)].map((_, i) => (
@@ -326,7 +364,7 @@ const TestimonialsSection = () => {
                 key={i}
                 className="absolute w-[40%] h-[200%] blur-[100px]"
                 style={{
-                  background: 'linear-gradient(to right, transparent, rgba(212, 175, 55, 0.05), transparent)',
+                  background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.03), transparent)',
                   left: `${i * 25 - 10}%`,
                   top: '-50%',
                   transform: 'rotate(35deg)',
@@ -344,13 +382,49 @@ const TestimonialsSection = () => {
             ))}
           </div>
 
+          {/* Primary Color Particle Effect */}
+          <div className="absolute inset-0 overflow-hidden">
+            {[...Array(15)].map((_, i) => (
+              <motion.div
+                key={`particle-${i}`}
+                className="absolute rounded-full"
+                style={{
+                  width: Math.random() * 4 + 1 + 'px',
+                  height: Math.random() * 4 + 1 + 'px',
+                  background: `rgba(198, 90, 45, ${Math.random() * 0.3 + 0.1})`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  x: [
+                    Math.random() * 100 - 50,
+                    Math.random() * 100 - 50,
+                    Math.random() * 100 - 50,
+                  ],
+                  y: [
+                    Math.random() * 100 - 50,
+                    Math.random() * 100 - 50,
+                    Math.random() * 100 - 50,
+                  ],
+                  opacity: [0.1, 0.4, 0.1],
+                }}
+                transition={{
+                  duration: Math.random() * 20 + 15,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: Math.random() * 5,
+                }}
+              />
+            ))}
+          </div>
+
           {/* Decorative Elements */}
           <motion.div
-            className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"
+            className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-light/10 to-transparent"
             style={{ y: decorativeY }}
           />
           <motion.div
-            className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"
+            className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-light/10 to-transparent"
             style={{ y: decorativeY }}
           />
         </div>
@@ -370,34 +444,21 @@ const TestimonialsSection = () => {
               transition={{ duration: 3, repeat: Infinity }}
             >
               <motion.span 
-                className="absolute -inset-2 rounded-full bg-primary/20 blur-xl"
+                className="absolute -inset-2 rounded-full bg-accent-light/10 blur-xl"
                 animate={{ 
                   scale: [1, 1.1, 1],
                   opacity: [0.5, 0.3, 0.5]
                 }}
                 transition={{ duration: 4, repeat: Infinity }}
               />
-              <span className="relative inline-block px-8 py-3 rounded-full bg-[linear-gradient(110deg,rgba(212,175,55,0.1),rgba(212,175,55,0.05)_30%,rgba(212,175,55,0.15))] backdrop-blur-sm text-sm text-primary font-medium tracking-wider uppercase mb-8 border border-primary/10 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+              <span className="relative inline-block px-8 py-3 rounded-full bg-[linear-gradient(110deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02)_30%,rgba(255,255,255,0.07))] backdrop-blur-sm text-sm text-accent-light font-medium tracking-wider uppercase mb-8 border border-accent-light/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                 Client Stories
               </span>
             </motion.div>
             
-            <div className="relative">
-              <motion.div
-                className="absolute -inset-x-4 -inset-y-2 md:-inset-x-6 md:-inset-y-4"
-                animate={{ 
-                  background: [
-                    'radial-gradient(circle at 0% 0%, rgba(212,175,55,0.03) 0%, transparent 50%)',
-                    'radial-gradient(circle at 100% 100%, rgba(212,175,55,0.03) 0%, transparent 50%)',
-                    'radial-gradient(circle at 0% 0%, rgba(212,175,55,0.03) 0%, transparent 50%)',
-                  ]
-                }}
-                transition={{ duration: 8, repeat: Infinity }}
-              />
-              <h2 className="relative text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent mb-6">
-                Voices of Joy & Success
-              </h2>
-            </div>
+            <h2 className="relative text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-600 bg-clip-text text-transparent mb-6">
+              Voices of Joy & Success
+            </h2>
 
             <motion.p 
               className="text-white/75 text-lg md:text-xl max-w-3xl mx-auto"

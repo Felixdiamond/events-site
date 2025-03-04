@@ -8,8 +8,7 @@ import ImageUpload from '@/components/admin/ImageUpload';
 import { Loader2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { DatePickerDemo } from '@/components/ui/DatePicker';
-import { SelectSingleEventHandler } from 'react-day-picker';
+import { DatePicker } from '@/components/ui/DatePicker';
 
 interface ImageMetadata {
   key: string;
@@ -187,11 +186,11 @@ export default function AdminGallery() {
     }
   };
 
-  const handleStartDateSelect: SelectSingleEventHandler = (date) => {
+  const handleStartDateSelect = (date: Date | undefined) => {
     setStartDate(date || null);
   };
 
-  const handleEndDateSelect: SelectSingleEventHandler = (date) => {
+  const handleEndDateSelect = (date: Date | undefined) => {
     setEndDate(date || null);
   };
 
@@ -220,7 +219,7 @@ export default function AdminGallery() {
 
             <div className="flex flex-col gap-2">
               <label className="text-sm text-white/60">Start Date</label>
-              <DatePickerDemo 
+              <DatePicker 
                 date={startDate}
                 onSelect={handleStartDateSelect}
               />
@@ -228,7 +227,7 @@ export default function AdminGallery() {
 
             <div className="flex flex-col gap-2">
               <label className="text-sm text-white/60">End Date</label>
-              <DatePickerDemo 
+              <DatePicker 
                 date={endDate}
                 onSelect={handleEndDateSelect}
               />

@@ -61,7 +61,34 @@ export async function GET(request: Request) {
 
     console.log(`Found ${images.length} images matching query`);
 
-    return NextResponse.json(images);
+    // Generate fresh signed URLs for all images
+    const imagesWithFreshUrls = await Promise.all(
+      images.map(async (image) => {
+        try {
+          // Generate a new signed URL
+          const getCommand = new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: image.key,
+          });
+
+          const url = await getSignedUrl(s3Client, getCommand, {
+            expiresIn: SIGNED_URL_EXPIRY,
+          });
+
+          // Update the URL in the database for future queries
+          await Image.updateOne({ _id: image._id }, { url });
+
+          // Return the image with the fresh URL
+          return { ...image, url };
+        } catch (error) {
+          console.error(`Error refreshing URL for image ${image.key}:`, error);
+          // Return the image with the original URL if refreshing fails
+          return image;
+        }
+      })
+    );
+
+    return NextResponse.json(imagesWithFreshUrls);
   } catch (error) {
     console.error('Error fetching images:', error);
     return NextResponse.json(
@@ -103,4 +130,4 @@ export async function DELETE(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

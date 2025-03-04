@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { Loader2, Calendar, Plus, Edit2, Trash2, Image, Tag } from 'lucide-react';
+import { Loader2, Calendar, Plus, Edit2, Trash2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { DateTimePicker } from '@/components/ui/DateTimePicker';
 
 // Form validation schema
 const eventFormSchema = z.object({
@@ -46,7 +48,7 @@ export default function AdminEventsPage() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<EventFormValues>({
+  const { register, handleSubmit, reset, setValue, formState: { errors }, control } = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       name: '',
@@ -233,11 +235,15 @@ export default function AdminEventsPage() {
                 <label htmlFor="date" className="block text-sm font-medium mb-1">
                   Event Date <span className="text-red-500">*</span>
                 </label>
-                <Input
-                  id="date"
-                  type="datetime-local"
-                  {...register('date')}
-                  className={errors.date ? 'border-red-500' : ''}
+                <Controller
+                  name="date"
+                  control={control}
+                  render={({ field }) => (
+                    <DateTimePicker
+                      date={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => field.onChange(date?.toISOString())}
+                    />
+                  )}
                 />
                 {errors.date && (
                   <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>
@@ -368,11 +374,12 @@ export default function AdminEventsPage() {
                       </td>
                       <td className="py-3 px-4">
                         {event.imageUrl ? (
-                          <div className="w-10 h-10 rounded-md overflow-hidden bg-white/5">
-                            <img 
+                          <div className="w-10 h-10 rounded-md overflow-hidden bg-white/5 relative">
+                            <Image 
                               src={event.imageUrl} 
                               alt={event.name} 
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                               }}

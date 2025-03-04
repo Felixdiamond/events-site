@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Loader2, Upload } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { DatePickerDemo } from '@/components/ui/DatePicker';
+import { DateTimePicker } from '@/components/ui/DateTimePicker';
 
 interface ImageUploadProps {
   onUploadComplete: (imageUrl: string) => void;
@@ -128,7 +128,7 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
 
         <div className="space-y-2">
           <label className="text-sm text-white/60">Event Date</label>
-          <DatePickerDemo 
+          <DateTimePicker 
             date={eventDate}
             onSelect={(date) => setEventDate(date || null)}
           />

@@ -13,7 +13,6 @@ const ShinyText: React.FC<ShinyTextProps> = ({ text, disabled = false, speed = 5
 
     return (
         <div className={`relative inline-flex items-center gap-2 ${className}`}>
-            <Sparkles className="w-5 h-5 text-primary" />
             <div className="relative">
                 {/* Base text layer */}
                 <span className="text-secondary-400">{text}</span>
@@ -21,7 +20,7 @@ const ShinyText: React.FC<ShinyTextProps> = ({ text, disabled = false, speed = 5
                 <span
                     className={`absolute inset-0 bg-clip-text text-transparent ${disabled ? '' : 'animate-shine'}`}
                     style={{
-                        backgroundImage: 'linear-gradient(120deg, rgba(212, 175, 55, 0) 40%, rgba(212, 175, 55, 1) 50%, rgba(212, 175, 55, 0) 60%)',
+                        backgroundImage: 'linear-gradient(120deg, rgba(198, 90, 45, 0) 40%, rgba(198, 90, 45, 1) 50%, rgba(198, 90, 45, 0) 60%)',
                         backgroundSize: '200% 100%',
                         animationDuration: animationDuration,
                     }}

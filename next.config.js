@@ -4,7 +4,13 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '*.r2.cloudflarestorage.com',
+        hostname: '*',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '*',
         port: '',
         pathname: '/**',
       },
@@ -12,4 +18,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig 
+module.exports = nextConfig
