@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     siteName: "Sparkling World Events",
     images: [
       {
-        url: "/images/og-image.jpg",
+        url: "https://sparklingworldevents.com/images/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Sparkling World Events - Premier Event Planning Services",
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Sparkling World Events | Premier Event Planning",
     description: "Transform your special moments into extraordinary experiences. Expert event planning for weddings, corporate events, and social gatherings in Nigeria.",
-    images: ["/images/twitter-image.jpg"],
-    creator: "@sparklingworldevents",
-    site: "@sparklingworldevents",
+    images: ["https://sparklingworldevents.com/images/twitter-image.jpg"],
+    creator: "@sparklingworldng",
+    site: "@sparklingworldng",
   },
   verification: {
     google: "your-google-site-verification",

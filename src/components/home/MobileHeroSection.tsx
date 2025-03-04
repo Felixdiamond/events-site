@@ -218,9 +218,9 @@ const MobileHeroSection = () => {
         </div>
       </div>
 
-      {/* Subtle scroll indicator */}
+      {/* Subtle scroll indicator - only visible on mobile */}
       <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 md:hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
