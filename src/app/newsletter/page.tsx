@@ -1,12 +1,6 @@
 import NewsletterSignup from '@/components/common/NewsletterSignup';
-import { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'Newsletter Subscription | Sparkling World Events',
-  description: 'Subscribe to our newsletter to receive updates about our latest events, promotions, and news.',
-};
-
-export default function NewsletterPage() {
+export default function Newsletter() {
   return (
     <div className="min-h-screen bg-secondary pt-24 pb-12 px-4 md:px-8">
       <div className="max-w-4xl mx-auto space-y-8">

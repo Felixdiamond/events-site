@@ -2,6 +2,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import ClientRootLayout from '@/components/layout/ClientLayout';
 import { AuthProvider } from '@/components/providers/AuthProvider';
+import { Metadata } from "next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,6 +16,41 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 });
 
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Sparkling World Events',
+    default: 'Sparkling World Events | Premier Event Planning in Nigeria'
+  },
+  description: "Transform your special moments into extraordinary experiences with Nigeria's leading event planning service. From intimate gatherings to grand celebrations, we bring your vision to life with meticulous attention to detail and unparalleled creativity.",
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/favicon-192x192.png', sizes: '192x192', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/favicon-57x57.png', sizes: '57x57', type: 'image/png' },
+      { url: '/favicon-60x60.png', sizes: '60x60', type: 'image/png' },
+      { url: '/favicon-72x72.png', sizes: '72x72', type: 'image/png' },
+      { url: '/favicon-76x76.png', sizes: '76x76', type: 'image/png' },
+      { url: '/favicon-114x114.png', sizes: '114x114', type: 'image/png' },
+      { url: '/favicon-120x120.png', sizes: '120x120', type: 'image/png' },
+      { url: '/favicon-144x144.png', sizes: '144x144', type: 'image/png' },
+      { url: '/favicon-152x152.png', sizes: '152x152', type: 'image/png' },
+      { url: '/favicon-180x180.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+  },
+  manifest: '/manifest.json',
+  themeColor: '#1a1a1a',
+  other: {
+    'msapplication-TileColor': '#ffffff',
+    'msapplication-TileImage': '/favicon-144x144.png',
+    'msapplication-config': '/browserconfig.xml',
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -22,28 +58,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <head>
-        <link rel="apple-touch-icon" sizes="57x57" href="/favicon-57x57.png" />
-        <link rel="apple-touch-icon" sizes="60x60" href="/favicon-60x60.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/favicon-72x72.png" />
-        <link rel="apple-touch-icon" sizes="76x76" href="/favicon-76x76.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="/favicon-114x114.png" />
-        <link rel="apple-touch-icon" sizes="120x120" href="/favicon-120x120.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/favicon-144x144.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/favicon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180x180.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
-        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <meta name="msapplication-TileColor" content="#ffffff" />
-        <meta name="msapplication-TileImage" content="/favicon-144x144.png" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#ffffff" />
-      </head>
       <body className="bg-secondary text-accent-light">
         <AuthProvider>
           <ClientRootLayout>{children}</ClientRootLayout>

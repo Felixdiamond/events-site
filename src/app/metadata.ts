@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sparkling World Events | Premier Event Planning in Nigeria",
+  title: {
+    template: '%s | Sparkling World Events',
+    default: 'Sparkling World Events | Premier Event Planning in Nigeria'
+  },
   description: "Transform your special moments into extraordinary experiences with Nigeria's leading event planning service. From intimate gatherings to grand celebrations, we bring your vision to life with meticulous attention to detail and unparalleled creativity.",
   keywords: "event planning, luxury events, wedding planning, corporate events, Nigerian events, event management, party planning, event coordination, Lagos events, celebration planning, event design, wedding coordination, corporate event planning, social events, event decoration",
   authors: [{ name: "Sparkling World Events" }],
@@ -52,10 +55,10 @@ export const metadata: Metadata = {
   verification: {
     google: "your-google-site-verification",
     other: {
-      me: ["@sparklingworldevents"],
+      me: ["@sparklingworldng"],
     },
   },
   alternates: {
     canonical: "https://sparklingworldevents.com",
   },
-}; 
+};

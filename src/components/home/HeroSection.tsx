@@ -408,40 +408,6 @@ const HeroSection = () => {
           </div>
         </div>
       </motion.div>
-
-      {/* Enhanced Scroll Indicator - Hide on touch devices */}
-      {!isTouchDevice && (
-        <motion.div
-          className="absolute bottom-12 left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2, duration: 1 }}
-        >
-          <motion.div
-            className="w-6 h-12 border-2 border-white/10 rounded-full p-1 backdrop-blur-2xl bg-white/[0.02]"
-            animate={{
-              y: [0, 8, 0],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatType: "reverse",
-            }}
-          >
-            <motion.div
-              className="w-1.5 h-1.5 bg-primary rounded-full mx-auto"
-              animate={{
-                y: [0, 20, 0],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            />
-          </motion.div>
-        </motion.div>
-      )}
     </motion.section>
   );
 };
