@@ -62,19 +62,19 @@ export async function GET(request: NextRequest) {
         }
         
         // Generate email content
-        const { subject, htmlContent } = generateReminderEmail({
+        const emailHtml = generateReminderEmail({
           eventName: reminder.eventName,
           eventDate: new Date(reminder.eventDate),
-          reminderType: reminder.reminderType,
-          name: reminder.name || 'Event Attendee',
-          eventDetails: event
+          recipientName: reminder.name || 'Event Attendee',
+          eventDescription: event.description || '',
+          eventImageUrl: event.imageUrl || '',
         });
         
         // Send email
         await sendEmail({
           to: reminder.email,
-          subject,
-          html: htmlContent
+          subject: `Reminder: ${reminder.eventName}`,
+          html: emailHtml,
         });
         
         // Update reminder as sent
