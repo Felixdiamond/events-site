@@ -57,8 +57,14 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
       return;
     }
 
-    if (!category || !eventDate) {
-      onError?.('Please select a category and event date');
+    // Validate that both category and date are properly selected
+    if (!category) {
+      onError?.('Please select a category before uploading');
+      return;
+    }
+    
+    if (!eventDate) {
+      onError?.('Please select an event date and click "Apply" in the date picker before uploading');
       return;
     }
 
@@ -74,6 +80,12 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
       formData.append('originalName', file.name);
       formData.append('category', category);
       formData.append('eventDate', eventDate.toISOString());
+
+      console.log('Uploading with data:', {
+        category,
+        eventDate: eventDate.toISOString(),
+        filename: file.name
+      });
 
       const response = await fetch('/api/images/upload', {
         method: 'POST',
@@ -111,7 +123,7 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
     <div className="w-full space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm text-white/60">Category</label>
+          <label className="text-sm text-white/60">Category <span className="text-red-400">*</span></label>
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger className="w-full border-white/10 bg-white/5 text-white hover:bg-black/20">
               <SelectValue placeholder="Select a category" />
@@ -127,12 +139,35 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm text-white/60">Event Date</label>
-          <DateTimePicker 
-            date={eventDate}
-            onSelect={(date) => setEventDate(date || null)}
-          />
+          <label className="text-sm text-white/60">Event Date <span className="text-red-400">*</span></label>
+          <div className="relative">
+            <DateTimePicker 
+              date={eventDate}
+              onSelect={(date) => {
+                setEventDate(date || null);
+                console.log("Date selected:", date);
+              }}
+            />
+            {eventDate && (
+              <div className="text-xs text-green-400 mt-1">
+                Date selected: {eventDate.toLocaleString()}
+              </div>
+            )}
+            {!eventDate && (
+              <div className="text-xs text-yellow-400 mt-1">
+                Please select a date and click "Apply" in the date picker
+              </div>
+            )}
+          </div>
         </div>
+        
+        {/* Validation message */}
+        {(!category || !eventDate) && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-md p-3 text-sm text-yellow-300">
+            <p>⚠️ Please select both a category and event date before uploading an image.</p>
+            <p className="mt-1 text-xs">Make sure to click the "Apply" button after selecting a date in the calendar.</p>
+          </div>
+        )}
       </div>
 
       <div
@@ -141,9 +176,9 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
           isDragActive
             ? 'border-primary bg-primary/10'
             : 'border-white/10 hover:border-primary/50 hover:bg-white/[0.02]'
-        }`}
+        } ${(!category || !eventDate) ? 'opacity-50 pointer-events-none' : ''}`}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} disabled={!category || !eventDate} />
         
         <AnimatePresence mode="sync">
           {(previewUrl || uploadedImageUrl) && (
