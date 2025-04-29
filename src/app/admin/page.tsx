@@ -14,7 +14,8 @@ import {
   Users, 
   Settings, 
   LogOut,
-  MessageCircle
+  MessageCircle,
+  ChartBarStacked
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { signOut } from 'next-auth/react';
@@ -87,6 +88,13 @@ export default function AdminDashboard() {
       icon: <ImageIcon className="h-6 w-6" />,
       href: '/admin/gallery',
       color: 'from-purple-500 to-purple-600',
+    },
+    {
+      name: 'Categories',
+      description: 'Manage Event Categories',
+      icon: <ChartBarStacked className="h-6 w-6" />,
+      href: '/admin/categories',
+      color: 'from-green-500 to-green-600',
     },
     {
       name: 'Bookings',
