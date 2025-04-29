@@ -38,9 +38,12 @@ export async function GET(request: Request) {
     const query: any = {};
 
     if (category && category !== 'all') {
+      // Escape special regex characters to treat them as literals
+      const escapedCategory = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       // Use exact match for category, but make it case-insensitive
-      query.category = { $regex: new RegExp(`^${category}$`, 'i') };
+      query.category = { $regex: new RegExp(`^${escapedCategory}$`, 'i') };
       console.log('Using category filter:', category);
+      console.log('Escaped category for query:', escapedCategory);
     }
 
     if (startDate || endDate) {
