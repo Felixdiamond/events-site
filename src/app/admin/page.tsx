@@ -94,7 +94,7 @@ export default function AdminDashboard() {
       description: 'Manage Event Categories',
       icon: <ChartBarStacked className="h-6 w-6" />,
       href: '/admin/categories',
-      color: 'from-gray-500 to-gray-600',
+      color: 'from-brown-500 to-brown-600',
     },
     {
       name: 'Bookings',
