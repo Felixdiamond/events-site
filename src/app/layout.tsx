@@ -3,6 +3,7 @@ import "./globals.css";
 import ClientRootLayout from '@/components/layout/ClientLayout';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { Metadata } from "next";
+import { ToastProvider } from "@heroui/toast"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,12 +44,15 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/manifest.json',
-  themeColor: '#1a1a1a',
   other: {
     'msapplication-TileColor': '#ffffff',
     'msapplication-TileImage': '/favicon-144x144.png',
     'msapplication-config': '/browserconfig.xml',
   },
+};
+
+export const viewport = {
+  themeColor: '#1a1a1a',
 };
 
 export default function RootLayout({
@@ -60,7 +64,10 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="bg-secondary text-accent-light">
         <AuthProvider>
-          <ClientRootLayout>{children}</ClientRootLayout>
+          <ClientRootLayout>
+            <ToastProvider />
+            {children}
+          </ClientRootLayout>
         </AuthProvider>
       </body>
     </html>

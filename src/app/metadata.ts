@@ -21,7 +21,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  themeColor: "#1a1a1a",
   viewport: {
     width: 'device-width',
     initialScale: 1,
@@ -52,6 +51,7 @@ export const metadata: Metadata = {
     creator: "@sparklingworldng",
     site: "@sparklingworldng",
   },
+  themeColor: "#1a1a1a",
   verification: {
     google: "your-google-site-verification",
     other: {
