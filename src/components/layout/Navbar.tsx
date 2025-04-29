@@ -306,14 +306,6 @@ const Navbar = () => {
         }}
         role="banner"
       >
-        {/* Skip to main content link */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 bg-primary text-white px-4 py-2 rounded-md z-50"
-        >
-          Skip to main content
-        </a>
-
         <nav
           className="container mx-auto px-4 py-4"
           role="navigation"
