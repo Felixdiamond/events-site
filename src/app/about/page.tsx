@@ -170,7 +170,7 @@ const teamMembers = [
   {
     name: 'Sarah Johnson',
     role: 'Creative Director',
-    image: '/images/team/member1.jpg',
+    image: '/images/team/firstmember.jpg',
     bio: 'With over 15 years of experience in luxury events.',
   }
 ];
