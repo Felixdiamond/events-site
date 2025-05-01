@@ -21,6 +21,7 @@ interface FileWithPreview extends File {
   status: 'pending' | 'uploading' | 'success' | 'error';
   progress: number;
   error?: string;
+  uploadedUrl?: string;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -32,12 +33,10 @@ const LoadingSpinner = () => (
 );
 
 export default function ImageUpload({ onUploadComplete, onError }: ImageUploadProps) {
+  const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-  const [files, setFiles] = useState<FileWithPreview[]>([]);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [category, setCategory] = useState('');
   const [eventDate, setEventDate] = useState<Date | null>(null);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
@@ -71,10 +70,6 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
   }, [files]);
 
   const uploadFile = async (file: FileWithPreview) => {
-    if (!category || !eventDate) {
-      return;
-    }
-
     try {
       // Update file status to uploading
       setFiles(prevFiles =>
@@ -84,20 +79,6 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
             : f
         )
       );
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('originalName', file.name);
-      formData.append('category', category);
-      formData.append('eventDate', eventDate.toISOString());
-
-      console.log('Uploading file:', {
-        filename: file.name,
-        size: file.size,
-        type: file.type,
-        category,
-        eventDate: eventDate.toISOString()
-      });
 
       // Simulate progress updates
       const progressInterval = setInterval(() => {
@@ -110,25 +91,42 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
         );
       }, 300);
 
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('originalName', file.name);
+      formData.append('category', category);
+      formData.append('eventDate', eventDate!.toISOString());
+
+      console.log('Uploading file:', {
+        filename: file.name,
+        type: file.type,
+        size: file.size,
+        category,
+        eventDate: eventDate!.toISOString()
+      });
+
       const response = await fetch('/api/images/upload', {
         method: 'POST',
         body: formData,
       });
 
       clearInterval(progressInterval);
-
       const data = await response.json();
-      console.log('Upload response:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Upload failed');
       }
 
-      // Update file status to success
+      // Update file status to success and store the uploaded URL
       setFiles(prevFiles =>
         prevFiles.map(f =>
           f.id === file.id
-            ? { ...f, status: 'success', progress: 100 }
+            ? { 
+                ...f, 
+                status: 'success', 
+                progress: 100,
+                uploadedUrl: data.image.url 
+              }
             : f
         )
       );
@@ -139,32 +137,32 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
       return true;
     } catch (error) {
       console.error('Error uploading file:', error);
-
+      
       // Update file status to error
       setFiles(prevFiles =>
         prevFiles.map(f =>
           f.id === file.id
             ? {
-              ...f,
-              status: 'error',
-              progress: 100,
-              error: error instanceof Error ? error.message : 'Upload failed'
-            }
+                ...f,
+                status: 'error',
+                progress: 100,
+                error: error instanceof Error ? error.message : 'Upload failed'
+              }
             : f
         )
       );
 
+      onError?.(error instanceof Error ? error.message : 'Upload failed');
       return false;
     }
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    // Validate that both category and date are properly selected
     if (!category) {
       onError?.('Please select a category before uploading');
       return;
     }
-
+    
     if (!eventDate) {
       onError?.('Please select an event date and click "Apply" in the date picker before uploading');
       return;
@@ -173,7 +171,7 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
     // Filter out files that are too large
     const validFiles = acceptedFiles.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
-        onError?.(`File "${file.name}" exceeds 10MB limit and will be skipped`);
+        onError?.(`File "${file.name}" exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit and will be skipped`);
         return false;
       }
       return true;
@@ -183,54 +181,55 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
 
     // Create preview for each file
     const filesWithPreviews = validFiles.map(file => {
-      return {
-        ...file,
+      const fileWithPreview = Object.assign(file, {
         preview: URL.createObjectURL(file),
         id: `${file.name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         status: 'pending' as const,
         progress: 0
-      };
+      });
+      
+      return fileWithPreview;
     });
 
     setFiles(prev => [...prev, ...filesWithPreviews]);
     setTotalCount(prev => prev + filesWithPreviews.length);
     setUploading(true);
 
-    // Upload files sequentially to avoid overwhelming the server
-    for (const file of filesWithPreviews) {
-      await uploadFile(file);
+    try {
+      // Upload files sequentially
+      for (const file of filesWithPreviews) {
+        await uploadFile(file);
+      }
+    } finally {
+      setUploading(false);
     }
-
-    setUploading(false);
   }, [category, eventDate, onError, onUploadComplete]);
 
-  const removeFile = (id: string) => {
+  const removeFile = useCallback((id: string) => {
     setFiles(prevFiles => {
       const fileToRemove = prevFiles.find(f => f.id === id);
       if (fileToRemove?.preview) {
         URL.revokeObjectURL(fileToRemove.preview);
       }
-
-      const newFiles = prevFiles.filter(f => f.id !== id);
-
-      // If we're removing a successful upload, decrement the counter
-      if (fileToRemove?.status === 'success') {
-        setUploadedCount(prev => prev - 1);
-      }
-
-      // If we're removing a file that hasn't been processed yet, decrement the total
-      if (fileToRemove?.status === 'pending') {
-        setTotalCount(prev => prev - 1);
-      }
-
-      return newFiles;
+      return prevFiles.filter(f => f.id !== id);
     });
-  };
+  }, []);
+
+  // Cleanup previews when component unmounts
+  useEffect(() => {
+    return () => {
+      files.forEach(file => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview);
+        }
+      });
+    };
+  }, [files]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.heic', '.heif']
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
     },
     maxSize: MAX_FILE_SIZE,
     multiple: true
@@ -323,7 +322,9 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
 
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{file.name}</p>
-                <p className="text-xs text-white/60">{(file.size / 1024).toFixed(1)} KB</p>
+                <p className="text-xs text-white/60">
+                  {file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Size unknown'}
+                </p>
 
                 {file.status === 'uploading' && (
                   <Progress value={file.progress} className="h-1 mt-1" />
@@ -365,13 +366,14 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
 
       <div
         {...getRootProps()}
-        className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${isDragActive
+        className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors ${
+          isDragActive
             ? 'border-primary bg-primary/10'
             : 'border-white/10 hover:border-primary/50 hover:bg-white/[0.02]'
-          } ${(!category || !eventDate) ? 'opacity-50 pointer-events-none' : ''}`}
+        } ${(!category || !eventDate) ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <input {...getInputProps()} disabled={!category || !eventDate} />
-
+        
         <div className="space-y-4">
           <div className="flex justify-center">
             <motion.div
@@ -395,29 +397,30 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
             </p>
           </div>
           <p className="text-xs text-white/40">
-            Supports: JPG, PNG, GIF, WebP, HEIC (up to 10MB)
+            Supports: JPG, PNG, GIF, WebP (up to {MAX_FILE_SIZE / 1024 / 1024}MB)
           </p>
         </div>
+
         {/* Clear all button */}
-{files.length > 0 && (
-  <div className="flex justify-end mt-4">
-    <Button 
-      variant="outline" 
-      size="sm" 
-      onClick={() => {
-        files.forEach(file => {
-          if (file.preview) URL.revokeObjectURL(file.preview);
-        });
-        setFiles([]);
-        setUploadedCount(0);
-        setTotalCount(0);
-      }}
-      className="text-white/60 hover:text-white"
-    >
-      Clear All
-    </Button>
-  </div>
-)}
+        {files.length > 0 && (
+          <div className="flex justify-end mt-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                files.forEach(file => {
+                  if (file.preview) URL.revokeObjectURL(file.preview);
+                });
+                setFiles([]);
+                setUploadedCount(0);
+                setTotalCount(0);
+              }}
+              className="text-white/60 hover:text-white"
+            >
+              Clear All
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

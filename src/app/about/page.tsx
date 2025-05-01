@@ -172,19 +172,7 @@ const teamMembers = [
     role: 'Creative Director',
     image: '/images/team/member1.jpg',
     bio: 'With over 15 years of experience in luxury events.',
-  },
-  {
-    name: 'Michael Chen',
-    role: 'Event Coordinator',
-    image: '/images/team/member2.jpg',
-    bio: 'Specialized in seamless event execution and logistics.',
-  },
-  {
-    name: 'Amara Okafor',
-    role: 'Design Lead',
-    image: '/images/team/member3.jpg',
-    bio: 'Award-winning designer with a passion for innovation.',
-  },
+  }
 ];
 
 const NumberCounter = ({ value, duration = 2.5 }: { value: string; duration?: number }) => {

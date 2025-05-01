@@ -44,9 +44,19 @@ export default function CategoriesAdmin() {
       }
       const data = await response.json();
       
+      // Add debug logging
+      console.log('Raw categories data:', data);
+      
+      // Transform the data to match the expected interface
+      const transformedData = data.map((category: any) => ({
+        id: category._id,
+        name: category.name,
+        createdAt: category.createdAt
+      }));
+      
       // Get image counts for each category
       const categoriesWithCounts = await Promise.all(
-        data.map(async (category: Category) => {
+        transformedData.map(async (category: Category) => {
           try {
             const imagesResponse = await fetch(`/api/images?category=${encodeURIComponent(category.name)}`);
             const imagesData = await imagesResponse.json();
@@ -65,6 +75,8 @@ export default function CategoriesAdmin() {
       );
       
       setCategories(categoriesWithCounts);
+      // Add debug logging for final state
+      console.log('Categories with counts:', categoriesWithCounts);
       setError(null);
     } catch (err) {
       setError('Failed to load categories');

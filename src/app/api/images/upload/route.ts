@@ -29,28 +29,59 @@ export async function POST(request: Request) {
     }
 
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get('file');
+    const originalName = formData.get('originalName') as string;
     const category = formData.get('category') as string;
     const eventDate = formData.get('eventDate') as string;
     
-    if (!file || !category || !eventDate) {
+    console.log('Received upload request:', {
+      hasFile: !!file,
+      originalName,
+      category,
+      eventDate,
+      fileType: file instanceof Blob ? file.type : typeof file
+    });
+
+    if (!file || !category || !eventDate || !originalName) {
+      console.log('Missing fields:', { file: !!file, category, eventDate, originalName });
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (!(file instanceof Blob)) {
+      console.log('Invalid file type:', typeof file);
+      return NextResponse.json({ error: 'Invalid file format' }, { status: 400 });
     }
 
     // Generate a safe filename
     const timestamp = Date.now();
-    const safeFilename = file.name
+    const safeFilename = originalName
       .toLowerCase()
       .replace(/[^a-z0-9.]/g, '-')
       .replace(/-+/g, '-');
-    const key = `gallery/${timestamp}-${safeFilename}`;
+    
+    if (!safeFilename) {
+      console.log('Invalid filename generated from:', originalName);
+      return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
+    }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const key = `gallery/${timestamp}-${safeFilename}`;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const contentType = file.type || 'application/octet-stream';
+
+    console.log('Processing upload:', {
+      key,
+      contentType,
+      size: buffer.length,
+      category,
+      eventDate
+    });
+
     const uploadCommand = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
       Body: buffer,
-      ContentType: file.type,
+      ContentType: contentType,
     });
 
     await s3Client.send(uploadCommand);
@@ -72,8 +103,14 @@ export async function POST(request: Request) {
       url,
       category,
       eventDate: new Date(eventDate),
-      size: file.size,
+      size: buffer.length,
       uploadedAt: new Date(),
+    });
+
+    console.log('Upload successful:', {
+      key,
+      url,
+      size: buffer.length
     });
 
     return NextResponse.json({
@@ -83,7 +120,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error uploading image:', error);
     return NextResponse.json(
-      { error: 'Failed to upload image' },
+      { error: error instanceof Error ? error.message : 'Failed to upload image' },
       { status: 500 }
     );
   }
