@@ -4,9 +4,13 @@ import { authOptions } from '../../auth/config';
 import dbConnect from '@/lib/db';
 import { Category } from '@/models/Category';
 
+type RouteParams = {
+  params: Promise<{ id: string }>;
+};
+
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -15,7 +19,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Category ID is required' }, { status: 400 });
     }
@@ -41,7 +45,7 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -50,7 +54,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Category ID is required' }, { status: 400 });
     }
