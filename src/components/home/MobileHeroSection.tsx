@@ -15,14 +15,12 @@ import {
   CinematicReveal,
   FloatingIcons
 } from '../ui/MobileHeroEnhancements';
+import Silk from './Silk';
 
 const MobileHeroSection = () => {
   const containerRef = useRef(null);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
-  
-  // Static background image instead of video for performance
-  const backgroundImage = '/images/hero-mobile.jpg'; // You'll need to create this optimized image
   
   // Simple scroll handling with minimal performance impact
   useEffect(() => {
@@ -45,44 +43,17 @@ const MobileHeroSection = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Static Background with Parallax Effect */}
+      {/* Silk Animated Background for Mobile */}
       <div className="absolute inset-0 w-full h-full bg-secondary">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isImageLoaded ? 1 : 0 }}
-          transition={{ duration: 1.5 }}
-          className="relative w-full h-full"
-          style={{ 
-            transform: `translateY(${scrollPosition * 15}px)`, 
-            scale: 1 + (scrollPosition * 0.05) 
-          }}
-        >
-          <Image
-            src={backgroundImage}
-            alt="Hero background"
-            fill
-            priority
-            className="object-cover"
-            style={{ filter: 'brightness(0.6) contrast(1.1) saturate(1.1)' }}
-            onLoadingComplete={() => setIsImageLoaded(true)}
-            aria-hidden="true"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/70 to-secondary" />
-          <div className="absolute inset-0 bg-gradient-to-r from-secondary/60 via-transparent to-secondary/60" />
-        </motion.div>
-        
-        {/* Loading State */}
-        {!isImageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              className="w-10 h-10 border-3 border-primary/30 border-t-primary rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              role="progressbar"
-              aria-label="Loading"
-            />
-          </div>
-        )}
+        <Silk
+          speed={5}
+          scale={1}
+          color="#7B7481"
+          noiseIntensity={1.5}
+          rotation={0}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/70 to-secondary" />
+        <div className="absolute inset-0 bg-gradient-to-r from-secondary/60 via-transparent to-secondary/60" />
       </div>
 
       {/* Enhanced Background Elements - Optimized for mobile */}
@@ -126,7 +97,7 @@ const MobileHeroSection = () => {
               <InteractiveBadge>
                 <div className="flex items-center gap-2 text-primary-200 text-xs font-medium tracking-wider uppercase">
                   <MdStar className="text-sm" />
-                  <span>Premier Event Planning in Nigeria</span>
+                  <span>Sparkling World Events</span>
                   <MdStar className="text-sm" />
                 </div>
               </InteractiveBadge>

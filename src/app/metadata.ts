@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: {
     template: '%s | Sparkling World Events',
-    default: 'Sparkling World Events | Premier Event Planning in Nigeria'
+    default: 'Sparkling World Events | Just dream it, we’ll deliver!'
   },
   description: "Transform your special moments into extraordinary experiences with Nigeria's leading event planning service. From intimate gatherings to grand celebrations, we bring your vision to life with meticulous attention to detail and unparalleled creativity.",
   keywords: "event planning, luxury events, wedding planning, corporate events, Nigerian events, event management, party planning, event coordination, Lagos events, celebration planning, event design, wedding coordination, corporate event planning, social events, event decoration",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_NG",
     url: "https://sparklingworldevents.com",
-    title: "Sparkling World Events | Premier Event Planning in Nigeria",
+    title: "Sparkling World Events | Just dream it, we’ll deliver!",
     description: "Transform your special moments into extraordinary experiences with Nigeria's leading event planning service. Expert event planning for weddings, corporate events, and social gatherings.",
     siteName: "Sparkling World Events",
     images: [

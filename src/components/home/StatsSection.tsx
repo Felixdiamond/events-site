@@ -3,6 +3,24 @@
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import CountUp from '@/components/common/CountUp';
+import Image from 'next/image';
+import React from 'react';
+
+// Placeholder icons (replace with your SVGs or icon components)
+const statIcons = [
+  () => (
+    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" className="text-primary"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" /><path d="M8 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  ),
+  () => (
+    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" className="text-primary"><rect x="4" y="4" width="16" height="16" rx="8" stroke="currentColor" strokeWidth="2" /><path d="M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+  ),
+  () => (
+    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" className="text-primary"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
+  ),
+  () => (
+    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" className="text-primary"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" /><path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+  ),
+];
 
 const stats = [
   {
@@ -29,158 +47,100 @@ const stats = [
   },
 ];
 
+const GradientText = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <span className={`bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent ${className}`}>
+    {children}
+  </span>
+);
+
 const StatsSection = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
   return (
-    <section ref={sectionRef} className="relative py-32 overflow-hidden">
-      {/* Luxury Background */}
-      <div className="absolute inset-0">
-        {/* Dark gradient base */}
+    <section ref={sectionRef} className="relative py-32 md:py-40 overflow-hidden">
+      {/* Subtle texture background with dark gradient base */}
+      <div className="absolute inset-0 -z-20">
         <div className="absolute inset-0 bg-gradient-to-b from-secondary via-secondary to-secondary/95" />
-        
-        {/* Animated luxury pattern */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 opacity-[0.03] bg-[url('/images/texture.png')] bg-repeat bg-[length:24px_24px]" />
-          
-          {/* Animated light beams */}
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={i}
-                className="absolute w-[50%] h-[200%] blur-[100px]"
-            style={{
-                  background: 'linear-gradient(to right, transparent, rgba(198, 90, 45, 0.08), transparent)',
-                  left: `${i * 30}%`,
-                  top: '-50%',
-                  transform: 'rotate(35deg)',
-                }}
-                animate={{
-                  y: ['0%', '100%'],
-                }}
-            transition={{ 
-                  duration: 20 + i * 5,
-              repeat: Infinity,
-                  ease: 'linear',
-                  delay: -i * 7,
-            }}
-          />
-        ))}
-          </div>
-        </div>
+        <div className="absolute inset-0 opacity-[0.03] bg-[url('/images/texture.png')] bg-repeat bg-[length:24px_24px]" />
       </div>
-
-      <div className="container relative">
+      <div className="container relative z-10">
         <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-          <motion.div
-            className="text-center mb-32"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-          >
-            <motion.div 
-              className="inline-block perspective-1000"
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              <motion.div
-                className="relative"
-                animate={{ rotateX: [0, 5, 0], rotateY: [0, 10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                <span className="inline-block px-8 py-3 rounded-full bg-[linear-gradient(110deg,rgba(212,175,55,0.1),rgba(212,175,55,0.05)_30%,rgba(212,175,55,0.15))] backdrop-blur-sm text-sm text-primary font-medium tracking-wider uppercase mb-8 border border-primary/10 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
-                  Our Legacy
-              </span>
-            </motion.div>
-          </motion.div>
-            
-            <h2 className="text-5xl md:text-7xl font-bold mb-8 relative">
-              <span className="absolute -inset-x-full inset-y-0 hidden md:block">
-                <div className="w-full h-full">
-                  <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-primary/5 to-transparent blur-xl" />
-                  <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-transparent via-primary/5 to-transparent blur-xl" />
-                </div>
-              </span>
-              <span className="relative bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
-                Milestones of Excellence
-              </span>
+          {/* Section Header */}
+          <div className="text-center mb-20">
+            <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-sm text-primary font-medium tracking-wider uppercase mb-6">
+              Our Expertise
+            </span>
+            <h2 className="text-5xl md:text-7xl font-bold mb-6">
+              <GradientText>Milestones of Excellence</GradientText>
             </h2>
-            <p className="text-white/75 text-xl md:text-2xl max-w-3xl mx-auto font-light">
+            <p className="text-white/80 text-xl md:text-2xl max-w-3xl mx-auto font-light">
               A decade of creating extraordinary experiences, one celebration at a time.
             </p>
-        </motion.div>
-
-          {/* Stats Display */}
-          <div className="relative">
-        {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-          {stats.map((stat, index) => (
-            <motion.div
+          </div>
+          {/* Stats Grid in GlassCard style */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-16">
+            {stats.map((stat, index) => {
+              const Icon = statIcons[index];
+              return (
+                <motion.div
                   key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="group relative perspective-1000"
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: index * 0.1 }}
+                  className="group relative"
                 >
+                  {/* GlassCard style */}
                   <motion.div
-                    className="relative z-10 p-8"
-                    animate={{ rotateX: [0, 2, 0], rotateY: [0, 4, 0] }}
-                    transition={{ duration: 5, repeat: Infinity, delay: index * 0.2 }}
+                    className="group relative p-8 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-sm h-full overflow-hidden shadow-xl"
+                    whileHover={{ y: -10, transition: { duration: 0.3 } }}
                   >
-                    {/* Number */}
-                    <div className="relative">
-                      <div className="absolute -inset-x-6 -inset-y-2 bg-gradient-to-r from-primary/[0.08] via-primary/[0.05] to-primary/[0.08] rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="relative flex items-baseline justify-center space-x-1 mb-6">
-                        <span className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary-light via-primary to-primary-dark bg-clip-text text-transparent">
-                          <CountUp
-                            to={stat.value}
-                            duration={2}
-                            delay={0.5 + index * 0.1}
-                          />
+                    <div className="absolute -inset-4 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        background: 'radial-gradient(circle, rgba(198,90,45,0.15) 0%, rgba(198,90,45,0) 70%)',
+                        filter: 'blur(20px)',
+                      }}
+                    />
+                    {/* Icon */}
+                    <div className="flex justify-center mb-6">
+                      <Icon />
+                    </div>
+                    {/* Number with radial glow */}
+                    <div className="relative flex items-baseline justify-center space-x-1 mb-5">
+                      <span className="text-5xl md:text-6xl font-bold relative z-10 bg-gradient-to-r from-white to-primary bg-clip-text text-transparent">
+                        <CountUp
+                          to={stat.value}
+                          duration={2}
+                          delay={0.5 + index * 0.1}
+                        />
+                      </span>
+                      {stat.suffix && (
+                        <span className="text-2xl md:text-3xl font-bold text-primary">
+                          {stat.suffix}
                         </span>
-                        {stat.suffix && (
-                          <span className="text-4xl md:text-5xl font-bold text-primary">
-                            {stat.suffix}
-                          </span>
-                        )}
-                      </div>
+                      )}
+                      {/* Radial glow behind number */}
+                      <motion.div
+                        className="absolute inset-0 rounded-full blur-md -z-10"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.3 }}
+                        style={{
+                          background: 'radial-gradient(circle, rgba(198,90,45,0.4) 0%, rgba(198,90,45,0) 70%)',
+                        }}
+                      />
                     </div>
-
                     {/* Label & Description */}
-                    <div className="relative">
-                      <h3 className="text-2xl font-bold text-white mb-3 text-center">
-                        {stat.label}
-                      </h3>
-                      <p className="text-white/60 text-center text-lg">
-                        {stat.description}
-                      </p>
-                    </div>
-
-                    {/* Hover Effects */}
-                    <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.08] to-transparent rounded-3xl" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary/[0.08] to-transparent rounded-3xl" />
-                    </div>
+                    <h3 className="text-xl font-semibold text-white mb-1 text-center">
+                      {stat.label}
+                    </h3>
+                    <p className="text-white/60 text-center text-base">
+                      {stat.description}
+                    </p>
+                  </motion.div>
                 </motion.div>
-
-                  {/* 3D Border Effect */}
-                  <div className="absolute -inset-px bg-gradient-to-b from-primary/20 to-primary/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-20" />
-            </motion.div>
-          ))}
-            </div>
-
-            {/* Decorative Corner Elements */}
-            <div className="absolute -top-12 -left-12 w-24 h-24 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-2xl opacity-50" />
-            <div className="absolute -bottom-12 -right-12 w-24 h-24 bg-gradient-to-tl from-primary/20 to-transparent rounded-full blur-2xl opacity-50" />
+              );
+            })}
           </div>
         </div>
       </div>
