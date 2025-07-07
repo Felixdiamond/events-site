@@ -200,17 +200,6 @@ const ServiceCard = ({ service, index }: { service: typeof services[0]; index: n
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <p className="text-primary font-medium text-sm sm:text-base">{service.price}</p>
-                {service.instagram && (
-                  <a 
-                    href={`https://instagram.com/${service.instagram.replace('@', '')}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-white/70 hover:text-primary text-sm mt-2 transition-colors"
-                  >
-                    <RiInstagramLine className="text-lg" />
-                    <span>{service.instagram}</span>
-                  </a>
-                )}
               </div>
               <Link href={`/contact?service=${service.id}`} className="w-full sm:w-auto">
                 <motion.button
