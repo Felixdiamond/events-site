@@ -124,21 +124,11 @@ const MobileHeroSection = () => {
               </CinematicReveal>
             </div>
 
-            {/* Description - With SplitText animation */}
+            {/* Description - Normal text, no SplitText */}
             <SubtleParallax amount={5} className="block">
-              <SplitText
-                text="Transform your special moments into extraordinary experiences with our meticulous attention to detail."
-                className="text-base sm:text-lg text-accent-light/90 mx-auto font-light leading-relaxed tracking-wide"
-                delay={15}
-                duration={0.6}
-                ease="power3.out"
-                splitType="chars"
-                from={{ opacity: 0, y: 40 }}
-                to={{ opacity: 1, y: 0 }}
-                threshold={0.1}
-                rootMargin="-100px"
-                textAlign="center"
-              />
+              <p className="text-base sm:text-lg text-accent-light/90 mx-auto font-light leading-relaxed tracking-wide text-center">
+                Transform your special moments into extraordinary experiences with our meticulous attention to detail.
+              </p>
             </SubtleParallax>
 
             {/* CTA Buttons - Enhanced with magnetic effect */}
