@@ -214,7 +214,7 @@ function getDefaultTemplate() {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Sparkling World Events Newsletter</title>
+  <title>Sparkling World Business & Events Newsletter</title>
   <style>
     body { 
       font-family: Arial, sans-serif; 
@@ -251,10 +251,10 @@ function getDefaultTemplate() {
 <body>
   <div class="container">
     <div class="header">
-      <h1>Sparkling World Events Newsletter</h1>
+      <h1>Sparkling World Business & Events Newsletter</h1>
     </div>
     <div class="content">
-      <h2>Hello from Sparkling World Events!</h2>
+      <h2>Hello from Sparkling World Business & Events!</h2>
       <p>Welcome to our newsletter. Here's what's new:</p>
       
       <h3>Upcoming Events</h3>
@@ -271,10 +271,10 @@ function getDefaultTemplate() {
       <a href="https://sparklingworldevents.com/events" class="button">View All Events</a>
       
       <p>We look forward to seeing you at our next event!</p>
-      <p>Best regards,<br>The Sparkling World Events Team</p>
+      <p>Best regards,<br>The Sparkling World Business & Events Team</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Sparkling World Events. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} Sparkling World Business & Events. All rights reserved.</p>
       <p>
         <a href="https://sparklingworldevents.com/unsubscribe">Unsubscribe</a> | 
         <a href="https://sparklingworldevents.com/privacy">Privacy Policy</a>

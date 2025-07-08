@@ -1,4 +1,4 @@
-# Sparkling World Events
+# Sparkling World Business & Events
 
 A premium event management and rental company website built with Next.js 15, TypeScript, and Tailwind CSS.
 

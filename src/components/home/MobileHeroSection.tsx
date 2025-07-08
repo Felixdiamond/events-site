@@ -16,6 +16,7 @@ import {
   FloatingIcons
 } from '../ui/MobileHeroEnhancements';
 import Silk from './Silk';
+import SplitText from '../common/SplitText';
 
 const MobileHeroSection = () => {
   const containerRef = useRef(null);
@@ -43,17 +44,20 @@ const MobileHeroSection = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Silk Animated Background for Mobile */}
-      <div className="absolute inset-0 w-full h-full bg-secondary">
-        <Silk
-          speed={5}
-          scale={1}
-          color="#7B7481"
-          noiseIntensity={1.5}
-          rotation={0}
+      {/* Hero Image Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <Image
+          src="/images/hero-mobile.jpg"
+          alt="Event celebration cheers"
+          fill
+          priority
+          className="object-cover w-full h-full blur-sm"
+          sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/70 to-secondary" />
-        <div className="absolute inset-0 bg-gradient-to-r from-secondary/60 via-transparent to-secondary/60" />
+        {/* Dark overlay for better contrast */}
+        <div className="absolute inset-0 bg-black/50" />
+        {/* Animated warm gradient overlay */}
+        <div className="absolute inset-0 animate-hero-gradient bg-gradient-to-b from-primary/70 via-orange-200/40 to-white/10 mix-blend-multiply" />
       </div>
 
       {/* Enhanced Background Elements - Optimized for mobile */}
@@ -97,7 +101,7 @@ const MobileHeroSection = () => {
               <InteractiveBadge>
                 <div className="flex items-center gap-2 text-primary-200 text-xs font-medium tracking-wider uppercase">
                   <MdStar className="text-sm" />
-                  <span>Sparkling World Events</span>
+                  <span>Sparkling World Business & Events</span>
                   <MdStar className="text-sm" />
                 </div>
               </InteractiveBadge>
@@ -120,16 +124,21 @@ const MobileHeroSection = () => {
               </CinematicReveal>
             </div>
 
-            {/* Description - With subtle parallax */}
+            {/* Description - With SplitText animation */}
             <SubtleParallax amount={5} className="block">
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
+              <SplitText
+                text="Transform your special moments into extraordinary experiences with our meticulous attention to detail."
                 className="text-base sm:text-lg text-accent-light/90 mx-auto font-light leading-relaxed tracking-wide"
-              >
-                Transform your special moments into extraordinary experiences with our meticulous attention to detail.
-              </motion.p>
+                delay={15}
+                duration={0.6}
+                ease="power3.out"
+                splitType="chars"
+                from={{ opacity: 0, y: 40 }}
+                to={{ opacity: 1, y: 0 }}
+                threshold={0.1}
+                rootMargin="-100px"
+                textAlign="center"
+              />
             </SubtleParallax>
 
             {/* CTA Buttons - Enhanced with magnetic effect */}

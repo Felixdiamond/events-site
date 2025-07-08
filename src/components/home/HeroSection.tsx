@@ -276,7 +276,7 @@ const HeroSection = () => {
                 >
                   <MdStar className="text-lg" />
                 </motion.span>
-                <span>Sparkling World Events</span>
+                <span>Sparkling World Business & Events</span>
                 <motion.span
                   animate={{ rotate: [0, -360] }}
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}

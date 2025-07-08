@@ -97,7 +97,7 @@ export async function sendNewsletter({
  * Send a welcome email to a new subscriber
  */
 export async function sendWelcomeEmail(email: string, name?: string) {
-  const subject = 'Welcome to Sparkling World Events Newsletter';
+  const subject = 'Welcome to Sparkling World Business & Events Newsletter';
   
   const html = `
     <!DOCTYPE html>
@@ -141,7 +141,7 @@ export async function sendWelcomeEmail(email: string, name?: string) {
     <body>
       <div class="container">
         <div class="header">
-          <h1>Welcome to Sparkling World Events!</h1>
+          <h1>Welcome to Sparkling World Business & Events!</h1>
         </div>
         <div class="content">
           <p>Hello ${name || 'there'},</p>
@@ -155,10 +155,10 @@ export async function sendWelcomeEmail(email: string, name?: string) {
           <p>Visit our website to explore our services:</p>
           <a href="https://sparklingworldevents.com" class="button">Visit Our Website</a>
           <p>If you have any questions, feel free to reply to this email.</p>
-          <p>Best regards,<br>The Sparkling World Events Team</p>
+          <p>Best regards,<br>The Sparkling World Business & Events Team</p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Sparkling World Events. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Sparkling World Business & Events. All rights reserved.</p>
           <p>
             <a href="https://sparklingworldevents.com/unsubscribe?email=${encodeURIComponent(email)}">Unsubscribe</a> | 
             <a href="https://sparklingworldevents.com/privacy">Privacy Policy</a>
@@ -231,11 +231,11 @@ export async function sendUnsubscribeConfirmation(email: string) {
           <p>We're sorry to see you go. You have been successfully unsubscribed from our newsletter.</p>
           <p>If you unsubscribed by mistake or would like to resubscribe in the future, you can do so on our website:</p>
           <a href="https://sparklingworldevents.com/newsletter" class="button">Resubscribe</a>
-          <p>We appreciate your interest in Sparkling World Events and hope to see you again soon.</p>
-          <p>Best regards,<br>The Sparkling World Events Team</p>
+          <p>We appreciate your interest in Sparkling World Business & Events and hope to see you again soon.</p>
+          <p>Best regards,<br>The Sparkling World Business & Events Team</p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Sparkling World Events. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Sparkling World Business & Events. All rights reserved.</p>
           <p>
             <a href="https://sparklingworldevents.com/privacy">Privacy Policy</a>
           </p>

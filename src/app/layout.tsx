@@ -19,8 +19,8 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Sparkling World Events',
-    default: 'Sparkling World Events | Just dream it, we’ll deliver!'
+    template: '%s | Sparkling World Business & Events',
+    default: 'Sparkling World Business & Events | Just dream it, we’ll deliver!'
   },
   description: "Transform your special moments into extraordinary experiences with Nigeria's leading event planning service. From intimate gatherings to grand celebrations, we bring your vision to life with meticulous attention to detail and unparalleled creativity.",
   icons: {

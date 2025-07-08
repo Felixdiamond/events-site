@@ -305,7 +305,7 @@ export default function NewsletterSignup({ className = '', variant = 'default' }
               )}
             />
             <label htmlFor="consent" className="text-sm text-gray-400">
-              I agree to receive emails from Sparkling World Events. You can unsubscribe at any time.
+              I agree to receive emails from Sparkling World Business & Events. You can unsubscribe at any time.
             </label>
           </div>
           {errors.consent && (

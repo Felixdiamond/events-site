@@ -10,7 +10,7 @@
   <!-- Content container -->
   <g transform="translate(100, 150)">
     <!-- Logo/Brand -->
-    <text x="500" y="0" font-family="Arial" font-size="24" fill="white" text-anchor="middle">SPARKLING WORLD EVENTS</text>
+    <text x="500" y="0" font-family="Arial" font-size="24" fill="white" text-anchor="middle">SPARKLING WORLD BUSINESS & EVENTS</text>
     
     <!-- Main title -->
     <text x="500" y="100" font-family="Arial" font-weight="bold" font-size="72" fill="white" text-anchor="middle">Creating Magical</text>

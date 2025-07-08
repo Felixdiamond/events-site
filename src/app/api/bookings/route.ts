@@ -261,7 +261,7 @@ export async function DELETE(request: NextRequest) {
             <p>Hello ${booking.name},</p>
             <p>Your booking for ${booking.eventType} on ${booking.eventDate.toLocaleDateString()} has been cancelled.</p>
             <p>If you have any questions, please contact us.</p>
-            <p>Best regards,<br>The Sparkling World Events Team</p>
+            <p>Best regards,<br>The Sparkling World Business & Events Team</p>
           </div>
         `,
       });

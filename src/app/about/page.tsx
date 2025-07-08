@@ -269,7 +269,7 @@ const AboutPage = () => {
         <div className="absolute inset-0">
           <Image
             src="/images/about-hero.jpg"
-            alt="About Sparkling World Events"
+            alt="About Sparkling World Business & Events"
             fill
             className="object-cover"
             priority

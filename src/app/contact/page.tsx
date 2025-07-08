@@ -18,13 +18,13 @@ import {
 const socialLinks = [
   {
     icon: RiWhatsappLine,
-    href: 'https://wa.me/2349119217578',
+    href: 'https://wa.me/2348103657145',
     label: 'WhatsApp',
     color: 'hover:bg-green-500',
   },
   {
     icon: RiInstagramLine,
-    href: 'https://instagram.com/sparklingworldng',
+    href: 'https://www.instagram.com/sparklingworldng',
     label: 'Instagram',
     color: 'hover:bg-pink-600',
   },

@@ -106,10 +106,10 @@ export function generateReminderEmail({
           
           <a href="https://sparklingworldevents.com/contact" class="button">Contact Us</a>
           
-          <p>Best regards,<br>The Sparkling World Events Team</p>
+          <p>Best regards,<br>The Sparkling World Business & Events Team</p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Sparkling World Events. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Sparkling World Business & Events. All rights reserved.</p>
           <p>
             <a href="https://sparklingworldevents.com/reminders">Manage Your Reminders</a> | 
             <a href="https://sparklingworldevents.com/privacy">Privacy Policy</a>
@@ -209,7 +209,7 @@ export function generateBookingConfirmationEmail({
         </div>
         <div class="content">
           <p>Hello ${name},</p>
-          <p>Thank you for booking with Sparkling World Events! Your booking has been confirmed.</p>
+          <p>Thank you for booking with Sparkling World Business & Events! Your booking has been confirmed.</p>
           
           <div class="booking-details">
             <h2>${eventType}</h2>
@@ -226,10 +226,10 @@ export function generateBookingConfirmationEmail({
           <a href="https://sparklingworldevents.com/contact" class="button">Contact Us</a>
           
           <p>We look forward to making your event special!</p>
-          <p>Best regards,<br>The Sparkling World Events Team</p>
+          <p>Best regards,<br>The Sparkling World Business & Events Team</p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Sparkling World Events. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Sparkling World Business & Events. All rights reserved.</p>
           <p>
             <a href="https://sparklingworldevents.com/bookings">Manage Your Bookings</a> | 
             <a href="https://sparklingworldevents.com/privacy">Privacy Policy</a>
@@ -360,10 +360,10 @@ export function generateAdminBookingNotificationEmail({
           
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/bookings" class="button">View in Admin Panel</a>
           
-          <p>Best regards,<br>Sparkling World Events System</p>
+          <p>Best regards,<br>Sparkling World Business & Events System</p>
         </div>
         <div class="footer">
-          <p>© ${new Date().getFullYear()} Sparkling World Events. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Sparkling World Business & Events. All rights reserved.</p>
           <p>This is an automated message. Please do not reply directly to this email.</p>
         </div>
       </div>

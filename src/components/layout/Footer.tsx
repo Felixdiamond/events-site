@@ -88,8 +88,8 @@ const Footer = () => {
               Creating extraordinary moments and unforgettable celebrations since 2016. Your premier destination for exceptional event planning and execution.
             </p>
             <div className="flex gap-4">
-              <SocialLink href="https://wa.me/2349119217578" icon={FaWhatsapp} label="WhatsApp" />
-              <SocialLink href="https://instagram.com/sparklingworldg" icon={FaInstagram} label="Instagram" />
+              <SocialLink href="https://wa.me/2348103657145" icon={FaWhatsapp} label="WhatsApp" />
+              <SocialLink href="https://www.instagram.com/sparklingworldng" icon={FaInstagram} label="Instagram" />
               <SocialLink href="https://facebook.com/sparklingworld" icon={FaFacebookF} label="Facebook" />
               <SocialLink href="https://linkedin.com/company/sparklingworld" icon={FaLinkedinIn} label="LinkedIn" />
             </div>
@@ -186,7 +186,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="relative py-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/50">
-            <p>&copy; {currentYear} Sparkling World Events. All rights reserved.</p>
+            <p>&copy; {currentYear} Sparkling World Business & Events. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
