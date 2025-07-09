@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/DatePicker';
+import Masonry from 'react-masonry-css';
 
 interface ImageMetadata {
   key: string;
@@ -385,18 +386,25 @@ export default function AdminGallery() {
           )}
         </AnimatePresence>
 
-        {/* Image Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Image Masonry Grid */}
+        <Masonry
+          breakpointCols={{
+            default: 4,
+            1280: 3,
+            1024: 2,
+            640: 1,
+          }}
+          className="flex w-auto gap-6"
+          columnClassName="masonry-column flex flex-col gap-6"
+        >
           {isLoading ? (
-            // Loading skeletons
             [...Array(8)].map((_, i) => (
               <div
                 key={`skeleton-${i}`}
-                className="aspect-square rounded-lg bg-white/5 animate-pulse"
+                className="aspect-square rounded-lg bg-white/5 animate-pulse min-h-[250px]"
               />
             ))
           ) : images.length === 0 ? (
-            // Empty state
             <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-lg border-2 border-dashed border-white/10">
               <svg
                 className="w-16 h-16 text-white/20 mb-4"
@@ -433,8 +441,7 @@ export default function AdminGallery() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="group relative w-full aspect-square rounded-lg overflow-hidden bg-white/5"
-                  style={{ minHeight: '250px' }}
+                  className="group relative w-full rounded-lg overflow-hidden bg-white/5 min-h-[250px]"
                 >
                   <Image
                     src={image.url}
@@ -495,7 +502,7 @@ export default function AdminGallery() {
               ))}
             </AnimatePresence>
           )}
-        </div>
+        </Masonry>
       </div>
     </div>
   );

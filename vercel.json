@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/send-reminders?key=7c3a7c3a-7c3a-4c3a-7c3a-1337c3a7c3a7",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron",
+      "schedule": "0 * * * *"
+    }
+  ]
+} 
