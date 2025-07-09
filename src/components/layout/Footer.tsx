@@ -128,7 +128,7 @@ const Footer = () => {
                 </div>
                 <div className="space-y-1.5">
                   <p className="text-white/70 hover:text-white transition-colors">+234 802 599 7713</p>
-                  <p className="text-white/70 hover:text-white transition-colors">+234 817 777 6580</p>
+                  <p className="text-white/70 hover:text-white transition-colors">+234 810 365 7145</p>
                   <p className="text-white/70 hover:text-white transition-colors">+234 905 557 2903 (Calls Only)</p>
                   <p className="text-white/70 hover:text-white transition-colors">+234 911 921 7578 (WhatsApp Only)</p>
                 </div>

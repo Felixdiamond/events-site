@@ -48,7 +48,7 @@ const contactInfo = [
     title: 'Phone',
     details: [
       { text: '+234 802 599 7713', type: 'phone' },
-      { text: '+234 817 777 6580', type: 'phone' },
+      { text: '+234 810 365 7145', type: 'phone' },
       { text: '+234 905 557 2903', type: 'phone', note: '(Calls Only)' },
       { text: '+234 911 921 7578', type: 'phone', note: '(WhatsApp Only)' },
     ],
