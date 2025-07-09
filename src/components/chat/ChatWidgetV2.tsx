@@ -60,7 +60,16 @@ export default function ChatWidgetV2() {
         (payload) => {
           // Only add if it's from admin (as we've already added customer messages)
           if (payload.new.sender_type === 'admin') {
-            setMessages((prev) => [...prev, payload.new]);
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: payload.new.id,
+                sender_type: payload.new.sender_type,
+                content: payload.new.content,
+                created_at: payload.new.created_at,
+                read: payload.new.read,
+              } as Message,
+            ]);
           }
         }
       )

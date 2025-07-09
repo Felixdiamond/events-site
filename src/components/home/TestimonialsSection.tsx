@@ -89,7 +89,13 @@ const testimonials = [
 ];
 
 // Add ExpandableText component
-const ExpandableText = ({ text, lines = 4, className = '' }) => {
+interface ExpandableTextProps {
+  text: string;
+  lines?: number;
+  className?: string;
+}
+
+const ExpandableText = ({ text, lines = 4, className = '' }: ExpandableTextProps) => {
   const [expanded, setExpanded] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
