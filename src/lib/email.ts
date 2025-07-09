@@ -5,6 +5,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Default sender email
 const DEFAULT_FROM_EMAIL = 'send@sparklingworldevents.com';
+const BOOKING_FROM_EMAIL = 'booking@sparklingworldevents.com';
+const INFO_FROM_EMAIL = 'info@sparklingworldevents.com';
+const NEWSLETTER_FROM_EMAIL = 'newsletter@sparklingworldevents.com';
 
 /**
  * Send a single email
@@ -13,7 +16,7 @@ export async function sendEmail({
   to,
   subject,
   html,
-  from = DEFAULT_FROM_EMAIL,
+  from = INFO_FROM_EMAIL,
   replyTo,
 }: {
   to: string;
@@ -50,7 +53,7 @@ export async function sendNewsletter({
   recipients,
   subject,
   html,
-  from = DEFAULT_FROM_EMAIL,
+  from = NEWSLETTER_FROM_EMAIL,
 }: {
   recipients: string[];
   subject: string;

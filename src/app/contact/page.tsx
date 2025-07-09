@@ -30,13 +30,13 @@ const socialLinks = [
   },
   {
     icon: RiFacebookBoxLine,
-    href: 'https://facebook.com/sparklingworld',
+    href: 'https://www.facebook.com/share/1NnqXaqVvg/?mibextid=wwXIfr',
     label: 'Facebook',
     color: 'hover:bg-blue-600',
   },
   {
     icon: RiLinkedinBoxLine,
-    href: 'https://linkedin.com/company/sparklingworld',
+    href: 'https://www.linkedin.com/company/sparkling-world-business-and-events/',
     label: 'LinkedIn',
     color: 'hover:bg-blue-700',
   },

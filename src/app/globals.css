@@ -388,3 +388,15 @@
     display: none;
   }
 }
+
+/* Brand Focus Styles for Inputs */
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px theme('colors.primary.DEFAULT') !important;
+  border-color: theme('colors.primary.DEFAULT') !important;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px theme('colors.primary.DEFAULT') !important;
+  border-color: theme('colors.primary.DEFAULT') !important;
+}

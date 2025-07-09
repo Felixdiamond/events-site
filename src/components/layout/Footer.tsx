@@ -90,8 +90,8 @@ const Footer = () => {
             <div className="flex gap-4">
               <SocialLink href="https://wa.me/2348103657145" icon={FaWhatsapp} label="WhatsApp" />
               <SocialLink href="https://www.instagram.com/sparklingworldng" icon={FaInstagram} label="Instagram" />
-              <SocialLink href="https://facebook.com/sparklingworld" icon={FaFacebookF} label="Facebook" />
-              <SocialLink href="https://linkedin.com/company/sparklingworld" icon={FaLinkedinIn} label="LinkedIn" />
+              <SocialLink href="https://www.facebook.com/share/1NnqXaqVvg/?mibextid=wwXIfr" icon={FaFacebookF} label="Facebook" />
+              <SocialLink href="https://www.linkedin.com/company/sparkling-world-business-and-events/" icon={FaLinkedinIn} label="LinkedIn" />
             </div>
           </div>
 

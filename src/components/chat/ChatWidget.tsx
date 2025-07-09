@@ -601,6 +601,19 @@ export function ChatWidget({ onChatStateChange }: ChatWidgetProps) {
     resetChat();
   };
 
+  // Prevent scroll chaining on desktop (mouse wheel)
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    const isAtTop = scrollTop === 0;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    if ((e.deltaY < 0 && isAtTop) || (e.deltaY > 0 && isAtBottom)) {
+      // Prevent scrolling the main page when at the top or bottom
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end">
       <AnimatePresence>
@@ -610,7 +623,7 @@ export function ChatWidget({ onChatStateChange }: ChatWidgetProps) {
             initial={{ opacity: 0, y: 20, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            className={`bg-secondary/90 backdrop-blur-md shadow-2xl overflow-hidden flex flex-col border border-white/10`}
+            className={`bg-secondary/90 backdrop-blur-md shadow-2xl flex flex-col border border-white/10 h-full`}
             style={{
               position: 'fixed',
               ...getChatWindowSize(),
@@ -618,7 +631,7 @@ export function ChatWidget({ onChatStateChange }: ChatWidgetProps) {
             onClick={(e) => e.stopPropagation()} // Prevent clicks from propagating
           >
             {/* Chat Header */}
-            <div className="bg-gradient-to-r from-primary-light via-primary to-primary-dark text-white p-4 flex justify-between items-center">
+            <div className="bg-gradient-to-r from-primary-light via-primary to-primary-dark text-white p-4 flex justify-between items-center h-16 min-h-16 max-h-16">
               <div>
                 <h3 className="font-bold">Live Chat Support</h3>
                 <p className="text-xs opacity-80">We typically reply in a few minutes</p>
@@ -729,11 +742,13 @@ export function ChatWidget({ onChatStateChange }: ChatWidgetProps) {
               /* Chat Interface */
               <>
                 <div 
-                  className="flex-1 p-4 overflow-y-auto" 
+                  className="p-4 overflow-y-auto" 
                   style={{ 
+                    height: 'calc(500px - 64px - 64px)',
                     scrollBehavior: 'smooth',
                     overscrollBehavior: 'contain' // Prevents scroll chaining
                   }}
+                  onWheel={handleWheel}
                 >
                   {/* Message date separator */}
                   <div className="text-center mb-4">
@@ -761,7 +776,7 @@ export function ChatWidget({ onChatStateChange }: ChatWidgetProps) {
                 </div>
                 
                 {/* Message input */}
-                <div className="p-3 border-t border-white/10">
+                <div className="p-3 border-t border-white/10 h-16 min-h-16 max-h-16 flex items-center">
                   <form onSubmit={handleSendMessage} className="flex gap-2">
                     <Textarea
                       value={message}

@@ -5,7 +5,7 @@ import Lenis from '@studio-freight/lenis';
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { FuzzyOverlay } from '@/components/common/FuzzyOverlay';
-import { ChatWidget } from '@/components/chat/ChatWidget';
+import ChatWidgetV2 from '@/components/chat/ChatWidgetV2';
 
 export default function ClientRootLayout({
   children,
@@ -37,8 +37,8 @@ export default function ClientRootLayout({
       infinite: false,
     });
     
-    // Disable scrolling when chat is open on mobile
-    if (isChatOpen && window.innerWidth < 768) {
+    // Disable scrolling when chat is open (on all devices)
+    if (isChatOpen) {
       lenis.stop();
     } else {
       lenis.start();
@@ -73,7 +73,7 @@ export default function ClientRootLayout({
         {children}
       </main>
       <Footer />
-      <ChatWidget onChatStateChange={handleChatStateChange} />
+      <ChatWidgetV2 />
       {/* <FuzzyOverlay /> */}
     </div>
   );

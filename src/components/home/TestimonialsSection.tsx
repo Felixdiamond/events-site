@@ -9,6 +9,7 @@ import { Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import React from 'react';
 
 const testimonials = [
   {
@@ -65,14 +66,90 @@ const testimonials = [
       'Great Hospitality',
     ],
   },
+  {
+    id: 4,
+    name: 'Mr. Yemi Ejidiran',
+    role: '60th Birthday Host',
+    company: '',
+    image: '/images/testimonials/yemi.jpg',
+    quote: `On behalf of my wife, Mrs. Yemisi Ejidiran, and myself, I would like to express our deepest gratitude to each and every one of you for your outstanding contributions to the success of the 60th birthday celebration on the 9th of December 2023.Your professionalism, dedication, and commitment played a pivotal role in making the entire event truly memorable and exceptionally successful.Your collective efforts, attention to detail, and unwavering support ensured that every aspect of the celebration exceeded our highest expectations. From the meticulous planning and flawless execution to the exceptional services rendered, each of you played a key role in creating an event that will be cherished forever.We are sincerely grateful for your hard work, creativity, and the personalized touch you brought to your respective roles. Your unwavering commitment to excellence did not go unnoticed, and we are truly thankful for your invaluable contributions.Looking ahead, we are excited about the prospect of working with each of you again in the future. Your expertise and professionalism are truly second to none, and we look forward to the possibility of collaborating on future endeavors.Furthermore, I would like to encourage the event planner to facilitate the administration of an evaluation template for all service providers involved in the event. This necessary feedback is incredibly valuable, and it will undoubtedly help all of you collectively identify areas for improvement and ensure even greater success in future collaborations.Once again, thank you for your exceptional service, dedication, and commitment. Your contributions have left an indelible mark on this special occasion, and we are deeply appreciative of all that you have done.`,
+    rating: 5,
+    location: 'Lagos, Nigeria',
+    date: 'December 2023',
+    eventSize: '100+ Guests',
+    verified: true,
+    highlights: [
+      'Meticulous Planning',
+      'Flawless Execution',
+      'Personalized Touch',
+      'Professional Team',
+      'Memorable Experience',
+    ],
+  },
 ];
+
+// Add ExpandableText component
+const ExpandableText = ({ text, lines = 4, className = '' }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+  const textRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (textRef.current) {
+      setShowButton(textRef.current.scrollHeight > textRef.current.clientHeight + 1);
+    }
+  }, [text, lines]);
+
+  return (
+    <div>
+      <div
+        ref={textRef}
+        className={`${className} ${expanded ? '' : 'line-clamp'} transition-all duration-300`}
+        style={
+          expanded
+            ? { maxHeight: 'none', overflow: 'visible' }
+            : {
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: lines,
+                overflow: 'hidden',
+                maxHeight: `${lines * 1.6}em`,
+              }
+        }
+      >
+        {text}
+      </div>
+      {showButton && (
+        <button
+          className="mt-2 text-accent-light underline text-xs font-medium focus:outline-none hover:text-accent transition-colors duration-200 cursor-pointer"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </div>
+  );
+};
 
 const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimonials[0]; index: number }) => {
   const cardRef = useRef(null);
   const isInView = useInView(cardRef, { once: true, margin: "-10%" });
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
+  const [isTruncatable, setIsTruncatable] = useState(false);
+  const quoteRef = useRef<HTMLParagraphElement>(null);
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+
+  useEffect(() => {
+    // Check if the quote overflows 4 lines
+    if (quoteRef.current) {
+      const lineHeight = parseFloat(getComputedStyle(quoteRef.current).lineHeight);
+      const maxHeight = lineHeight * 4;
+      setIsTruncatable(quoteRef.current.scrollHeight > maxHeight + 2); // +2 for rounding
+    }
+  }, [testimonial.quote]);
 
   return (
     <motion.div
@@ -116,7 +193,7 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
                   fill
                   className={`object-cover transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
                   sizes="(max-width: 768px) 56px, 64px"
-                  onLoadingComplete={() => setImageLoading(false)}
+                  onLoad={() => setImageLoading(false)}
                   priority={index < 3}
                 />
                 <div className="absolute inset-0 ring-1 ring-white/10 rounded-full" />
@@ -146,9 +223,11 @@ const TestimonialCard = ({ testimonial, index }: { testimonial: typeof testimoni
 
             {/* Quote */}
             <blockquote className={`relative mb-6 transition-opacity duration-300 ${imageLoading ? 'opacity-50' : 'opacity-100'}`}>
-              <p className="text-white/90 text-sm md:text-base leading-relaxed line-clamp-4 md:line-clamp-none">
-                "{testimonial.quote}"
-              </p>
+              <ExpandableText
+                text={`"${testimonial.quote}"`}
+                lines={4}
+                className="text-white/90 text-sm md:text-base leading-relaxed whitespace-pre-line"
+              />
             </blockquote>
 
             {/* Event Details */}
