@@ -34,7 +34,7 @@ const testimonials = [
     name: 'Ms. Adebukola Akingbade',
     role: '50th Birthday Celebrant',
     company: '',
-    image: '/images/testimonials/blackwoman1.jpg',
+    image: '/images/testimonials/adebukola.jpg',
     quote: `My dear Mrs. Peters, my sis!\n\nWith heartfelt love and deepest appreciation, I want to thank you from the bottom of my heart for being part of my 50th birthday celebration.\n\nYour support throughout the planning, managing my last-minute requests, the beautiful decorations, and your presence meant more to me than you may ever know.\n\nIt was more than a party—it was a moment of love and honour that I will carry with me for years to come.\n\nThank you for showing up. Thank you for stepping up throughout the preparations. Thank you for celebrating me. Thank you for the honour of your time and your beautiful spirit. I am deeply touched and truly blessed. God bless you, sis.\n\nI pray that your days are filled with divine favour, peace that passes all understanding, and blessings that will leave you in awe. May God continue to honour you.\n\nAmen! 🙏`,
     rating: 5,
     location: 'Lagos, Nigeria',
@@ -49,7 +49,7 @@ const testimonials = [
   },
   {
     id: 3,
-    name: 'Mrs Bukola Adeogun',
+    name: 'Mrs. Bukola Adeogun',
     role: 'Family Event Host',
     company: '',
     image: '/images/testimonials/blackwoman2.jpg',

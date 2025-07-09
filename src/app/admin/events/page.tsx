@@ -89,7 +89,7 @@ export default function AdminEventsPage() {
       }
       
       const data = await response.json();
-      setCategories(data.categories.map((cat: any) => cat.name));
+      setCategories(data.map((cat: any) => cat.name));
     } catch (err) {
       console.error('Error fetching categories:', err);
       // Set some default categories as fallback

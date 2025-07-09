@@ -208,8 +208,8 @@ export default function AdminGallery() {
                 </SelectTrigger>
                 <SelectContent className="bg-secondary border-white/10">
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.name}>
+                  {categories.map((cat, index) => (
+                    <SelectItem key={cat.id || cat.name || index} value={cat.name}>
                       {cat.name}
                     </SelectItem>
                   ))}
