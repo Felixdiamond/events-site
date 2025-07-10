@@ -187,8 +187,8 @@ const teamMembers = [
   },
   {
     name: 'Ademola Peters',
-    role: 'Finance Advisor (AOP Consults)',
-    image: '/images/team/member4.jpg',
+    role: 'Strategic Finance Advisor (AOP Consults)',
+    image: '',
     bio: 'Strategic financial guidance and advisory services for sustainable business growth.',
   }
 ];
@@ -916,9 +916,6 @@ const AboutPage = () => {
                     />
                     <h3 className="text-3xl font-bold text-white mb-2">{member.name}</h3>
                     <p className="text-primary text-lg mb-4">{member.role}</p>
-                    <p className="text-lg text-white/70 transform opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-                      {member.bio}
-                    </p>
                   </div>
                 </div>
               </motion.div>

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/config';
 import dbConnect from '@/lib/db';
 import { Category } from '@/models/Category';
+import { Image } from '@/models/Image';
 
 type RouteParams = {
   params: Promise<{ id: string }>;
@@ -77,6 +78,12 @@ export async function PUT(
     }
 
     // Update the category
+    // First, get the old category name
+    const oldCategory = await Category.findById(id);
+    if (!oldCategory) {
+      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+
     const category = await Category.findByIdAndUpdate(
       id,
       { name },
@@ -86,6 +93,12 @@ export async function PUT(
     if (!category) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
+
+    // Update all images with the old category name to the new name
+    await Image.updateMany(
+      { category: oldCategory.name },
+      { $set: { category: name } }
+    );
 
     return NextResponse.json({
       success: true,

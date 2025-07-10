@@ -24,7 +24,7 @@ const services = [
   {
     id: 'vendor',
     title: 'Vendor Sourcing & Management',
-    description: 'We connect you with trusted vendors and manage all communications to ensure quality and reliability.',
+    description: 'We work with tested and trusted vendors to deliver quality and excellent service.',
     image: '/images/services/vendor.jpg',
     features: [
       'Vendor research',

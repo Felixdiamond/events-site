@@ -15,13 +15,13 @@ const testimonials = [
   {
     id: 1,
     name: 'Mr. Ofele Okposo',
-    role: 'Private Event Host',
+    role: 'Traditional Marriage Host',
     company: '',
     image: '/images/testimonials/blackman1.jpg',
     quote: 'The event was simply awesome, exquisite, gorgeous, and more. You delivered beyond my expectations. The food was perfect, drinks chilled, ambience perfect, and customer service unbelievably courteous. Thank you from the bottom of our hearts for a job well done—you blew our minds.',
     rating: 5,
     location: 'Lagos, Nigeria',
-    date: 'April 2024',
+    date: 'April 2023',
     eventSize: '100+ Guests',
     verified: true,
     highlights: [
@@ -40,7 +40,7 @@ const testimonials = [
     rating: 5,
     location: 'Lagos, Nigeria',
     date: 'March 2024',
-    eventSize: '50+ Guests',
+    eventSize: '150+ Guests',
     verified: true,
     highlights: [
       'Personalized Planning',
@@ -51,14 +51,14 @@ const testimonials = [
   {
     id: 3,
     name: 'Mrs. Bukola Adeogun',
-    role: 'Family Event Host',
+    role: 'Corporate Event Host',
     company: '',
     image: '/images/testimonials/blackwoman2.jpg',
     quote: 'Good evening, the event went very well—thanks to your professional staff. The leftovers were handed over to us. 👍😃 Your staff behaved well and were well-cultured. Our appreciation goes to them.',
     rating: 5,
     location: 'Lagos, Nigeria',
-    date: 'February 2024',
-    eventSize: '80+ Guests',
+    date: 'October 2024',
+    eventSize: '500+ Guests',
     verified: true,
     highlights: [
       'Professional Staff',
@@ -76,7 +76,7 @@ const testimonials = [
     rating: 5,
     location: 'Lagos, Nigeria',
     date: 'December 2023',
-    eventSize: '100+ Guests',
+    eventSize: '300+ Guests',
     verified: true,
     highlights: [
       'Meticulous Planning',

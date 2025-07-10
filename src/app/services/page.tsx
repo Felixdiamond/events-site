@@ -25,7 +25,7 @@ const services = [
   {
     id: 'vendor',
     title: 'Vendor Sourcing & Management',
-    description: 'We connect you with trusted vendors and manage all communications to ensure quality and reliability.',
+    description: 'We work with tested and trusted vendors to deliver quality and excellent service.',
     image: '/images/services/vendor.jpg',
     icon: RiHomeHeartLine,
     features: [
@@ -41,7 +41,7 @@ const services = [
     id: 'venue',
     title: 'Venue Selection',
     description: 'Find the perfect venue that matches your event\'s vision, size, and budget.',
-    image: '/images/services/diningarea.jpg',
+    image: '/images/services/venue.jpg',
     icon: RiStore3Line,
     features: [
       'Venue research',
