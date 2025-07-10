@@ -24,7 +24,8 @@ const statIcons = [
 
 const stats = [
   {
-    value: 500,
+    value: 250,
+    suffix: '+',
     label: 'Events Orchestrated',
     description: 'Unforgettable celebrations crafted',
   },

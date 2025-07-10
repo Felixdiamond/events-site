@@ -188,7 +188,7 @@ const teamMembers = [
   {
     name: 'Ademola Peters',
     role: 'Strategic Finance Advisor (AOP Consults)',
-    image: '',
+    image: '/images/team/member4.jpg',
     bio: 'Strategic financial guidance and advisory services for sustainable business growth.',
   }
 ];
