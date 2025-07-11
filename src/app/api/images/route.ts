@@ -81,8 +81,16 @@ export async function GET(request: Request) {
           // Update the URL in the database for future queries
           await Image.updateOne({ _id: image._id }, { url });
 
-          // Return the image with the fresh URL
-          return { ...image, url };
+          // Ensure type is present (fallback to guessing from extension if missing)
+          let type = image.type;
+          if (!type && image.key) {
+            if (image.key.match(/\.(mp4|mov|avi|webm|mkv)$/i)) type = 'video/mp4';
+            else if (image.key.match(/\.(jpg|jpeg|png|gif|webp)$/i)) type = 'image/jpeg';
+            else type = 'application/octet-stream';
+          }
+
+          // Return the image with the fresh URL and type
+          return { ...image, url, type };
         } catch (error) {
           console.error(`Error refreshing URL for image ${image.key}:`, error);
           // Return the image with the original URL if refreshing fails

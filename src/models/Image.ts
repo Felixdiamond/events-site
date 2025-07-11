@@ -7,6 +7,7 @@ export interface IImage {
   category: string;
   eventDate: Date;
   size: number;
+  type: string; // Add this line
 }
 
 const imageSchema = new mongoose.Schema<IImage>({
@@ -33,6 +34,10 @@ const imageSchema = new mongoose.Schema<IImage>({
   },
   size: {
     type: Number,
+    required: true,
+  },
+  type: {
+    type: String,
     required: true,
   },
 });

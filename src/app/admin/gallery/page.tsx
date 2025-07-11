@@ -387,16 +387,7 @@ export default function AdminGallery() {
         </AnimatePresence>
 
         {/* Image Masonry Grid */}
-        <Masonry
-          breakpointCols={{
-            default: 4,
-            1280: 3,
-            1024: 2,
-            640: 1,
-          }}
-          className="flex w-auto gap-6"
-          columnClassName="masonry-column flex flex-col gap-6"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
             [...Array(8)].map((_, i) => (
               <div
@@ -432,7 +423,7 @@ export default function AdminGallery() {
                 Upload First Image
               </motion.button>
             </div>
-          ) : (
+          ) :
             <AnimatePresence mode="sync">
               {images.map((image) => (
                 <motion.div
@@ -501,8 +492,8 @@ export default function AdminGallery() {
                 </motion.div>
               ))}
             </AnimatePresence>
-          )}
-        </Masonry>
+          }
+        </div>
       </div>
     </div>
   );

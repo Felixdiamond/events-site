@@ -24,7 +24,7 @@ interface FileWithPreview extends File {
   uploadedUrl?: string;
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 
 const LoadingSpinner = () => (
   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -125,14 +125,17 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
                 ...f, 
                 status: 'success', 
                 progress: 100,
-                uploadedUrl: data.image.url 
+                uploadedUrl: data.images?.[0]?.url 
               }
             : f
         )
       );
 
-      setUploadedCount(prev => prev + 1);
-      onUploadComplete(data.image.url);
+      const uploadedUrl = data.images?.[0]?.url;
+      if (uploadedUrl) {
+        setUploadedCount(prev => prev + 1);
+        onUploadComplete(uploadedUrl);
+      }
 
       return true;
     } catch (error) {
@@ -157,18 +160,16 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
     }
   };
 
+  // Move onDrop definition above useDropzone
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!category) {
       onError?.('Please select a category before uploading');
       return;
     }
-    
     if (!eventDate) {
       onError?.('Please select an event date and click "Apply" in the date picker before uploading');
       return;
     }
-
-    // Filter out files that are too large
     const validFiles = acceptedFiles.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
         onError?.(`File "${file.name}" exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit and will be skipped`);
@@ -176,34 +177,52 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
       }
       return true;
     });
-
     if (validFiles.length === 0) return;
-
-    // Create preview for each file
     const filesWithPreviews = validFiles.map(file => {
       const fileWithPreview = Object.assign(file, {
-        preview: URL.createObjectURL(file),
+        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
         id: `${file.name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         status: 'pending' as const,
         progress: 0
       });
-      
       return fileWithPreview;
     });
-
     setFiles(prev => [...prev, ...filesWithPreviews]);
     setTotalCount(prev => prev + filesWithPreviews.length);
     setUploading(true);
-
     try {
-      // Upload files sequentially
-      for (const file of filesWithPreviews) {
-        await uploadFile(file);
-      }
+      // Upload all files in parallel
+      await Promise.all(filesWithPreviews.map(uploadFile));
     } finally {
       setUploading(false);
     }
   }, [category, eventDate, onError, onUploadComplete]);
+
+  // Accept both images and videos
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
+      'video/*': ['.mp4', '.mov', '.avi', '.webm', '.mkv']
+    },
+    maxSize: MAX_FILE_SIZE,
+    multiple: true
+  });
+
+  // Fetch latest event date for selected category
+  useEffect(() => {
+    if (!category) return;
+    fetch(`/api/images?category=${encodeURIComponent(category)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          // Find the most recent eventDate
+          const latest = data.reduce((a, b) => new Date(a.eventDate) > new Date(b.eventDate) ? a : b);
+          setEventDate(new Date(latest.eventDate));
+        }
+      })
+      .catch(() => {});
+  }, [category]);
 
   const removeFile = useCallback((id: string) => {
     setFiles(prevFiles => {
@@ -226,15 +245,6 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
     };
   }, [files]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
-    },
-    maxSize: MAX_FILE_SIZE,
-    multiple: true
-  });
-
   return (
     <div className="w-full space-y-6">
       <div className="space-y-4">
@@ -246,7 +256,7 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
             </SelectTrigger>
             <SelectContent className="bg-secondary border-white/10">
               {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.name}>
+                <SelectItem key={cat.id || cat.name} value={cat.name}>
                   {cat.name}
                 </SelectItem>
               ))}
@@ -299,68 +309,26 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
       {/* File list */}
       {files.length > 0 && (
         <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-          {files.map((file) => (
-            <div
-              key={file.id}
-              className="flex items-center gap-3 p-2 bg-white/5 rounded-md border border-white/10"
-            >
-              <div className="relative h-16 w-16 flex-shrink-0 bg-black/20 rounded overflow-hidden">
-                {file.preview ? (
-                  <Image
-                    src={file.preview}
-                    alt={file.name}
-                    fill
-                    className="object-cover"
-                    sizes="64px"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full w-full">
-                    <Upload className="h-6 w-6 text-white/40" />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{file.name}</p>
-                <p className="text-xs text-white/60">
-                  {file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Size unknown'}
-                </p>
-
-                {file.status === 'uploading' && (
-                  <Progress value={file.progress} className="h-1 mt-1" />
-                )}
-
-                {file.status === 'error' && (
-                  <p className="text-xs text-red-400 mt-1">{file.error}</p>
-                )}
-              </div>
-
-              <div className="flex-shrink-0">
-                {file.status === 'pending' && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => removeFile(file.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-
-                {file.status === 'uploading' && (
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                )}
-
-                {file.status === 'success' && (
-                  <Check className="h-5 w-5 text-green-500" />
-                )}
-
-                {file.status === 'error' && (
-                  <AlertCircle className="h-5 w-5 text-red-500" />
-                )}
-              </div>
-            </div>
-          ))}
+          {files.map((file) => {
+            const isVideo = file.type?.startsWith('video') ||
+              (typeof file.url === 'string' &&
+                (file.url.endsWith('.mp4') || file.url.endsWith('.mov') || file.url.endsWith('.avi') || file.url.endsWith('.webm') || file.url.endsWith('.mkv')));
+            return isVideo ? (
+              <video
+                key={file.id || file.url}
+                src={file.url}
+                controls
+                className="object-cover h-full w-full"
+              />
+            ) : (
+              <Image
+                key={file.id || file.url}
+                src={file.url}
+                alt={file.name || 'Upload preview'}
+                className="object-cover h-full w-full"
+              />
+            );
+          })}
         </div>
       )}
 
@@ -387,9 +355,9 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
           <div>
             <p className="text-lg font-medium text-white/80">
               {isDragActive ? (
-                "Drop the images here"
+                "Drop the files here"
               ) : (
-                "Drag & drop images here"
+                "Drag & drop images or videos here"
               )}
             </p>
             <p className="text-sm text-white/60 mt-1">
@@ -397,7 +365,7 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
             </p>
           </div>
           <p className="text-xs text-white/40">
-            Supports: JPG, PNG, GIF, WebP (up to {MAX_FILE_SIZE / 1024 / 1024}MB)
+            Supports: JPG, PNG, GIF, WebP, MP4, MOV, AVI, WEBM, MKV (up to {MAX_FILE_SIZE / 1024 / 1024}MB)
           </p>
         </div>
 

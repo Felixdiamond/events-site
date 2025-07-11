@@ -38,6 +38,7 @@ interface ImageData {
   eventDate: string;
   uploadedAt: string;
   size: number;
+  type?: string; // Add type for video/image distinction
 }
 
 // Interface for our gallery items
@@ -51,6 +52,7 @@ interface GalleryItem {
   position?: GalleryPosition;
   accent?: string;
   eventDate: Date;
+  type?: string; // Add type for video/image distinction
 }
 
 // Map API data to gallery item format
@@ -80,6 +82,7 @@ const mapImageToGalleryItem = (image: ImageData, index: number): GalleryItem => 
       position: 'center',
     accent: accentColors[image.category as keyof typeof accentColors] || 'from-primary/20 to-transparent',
     eventDate,
+    type: image.type, // Pass type
   };
 };
 
@@ -102,12 +105,11 @@ const getSizeClasses = (size: GallerySize): string => {
 const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => void }) => {
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
-  
   const sizeClass = getSizeClasses(item.size);
+  const isVideo = item.type?.startsWith('video');
 
   const handleClick = () => {
     // Navigate to event detail page with proper encoding
-    console.log('Navigating to category:', item.category);
     router.push(`/gallery/event/${encodeURIComponent(item.category)}`);
   };
 
@@ -123,16 +125,34 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
       onClick={handleClick}
     >
       <motion.div 
-        className="relative h-full w-full rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer"
+        className="relative h-full w-full rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer group"
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.3 }}
       >
-        <Image
-          src={item.image}
-          alt={item.title}
-          fill
-          className={`object-cover ${item.position ? `object-${item.position}` : ''}`}
-        />
+        {isVideo ? (
+          <div className="relative h-full w-full">
+            <video
+              src={item.image}
+              className={`object-cover w-full h-full aspect-video rounded-2xl`}
+              controls
+              preload="metadata"
+              style={{ background: '#000' }}
+            />
+            {/* Play icon overlay for videos */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="bg-black/50 rounded-full p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="9.5,7.5 16.5,12 9.5,16.5" fill="white" /></svg>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <Image
+            src={item.image}
+            alt={item.title}
+            fill
+            className={`object-cover ${item.position ? `object-${item.position}` : ''}`}
+          />
+        )}
         <div className={`absolute inset-0 bg-gradient-to-t ${item.accent || 'from-primary/20 to-transparent'} mix-blend-soft-light opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
         <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         

@@ -18,6 +18,7 @@ interface ImageData {
   eventDate: string;
   uploadedAt: string;
   size: number;
+  type?: string; // Add type for video/image distinction
 }
 
 // Interface for event details
@@ -246,21 +247,31 @@ const EventDetailPage = () => {
                   className="absolute inset-0 w-full h-full" 
                   style={{ minHeight: '100%' }}
                 >
-                  <div className="relative w-full h-full" style={{ minHeight: '100%' }}> 
-                    <Image
-                      src={currentImage.url}
-                      alt={`${event.category} image ${safeCurrentIndex + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 80vw"
-                      className="object-cover"
-                      priority
-                      onError={(e) => {
-                        // If image fails to load, use fallback
-                        console.error('Failed to load main image:', currentImage.url);
-                        const target = e.target as HTMLImageElement;
-                        target.src = fallbackImageUrl;
-                      }}
-                    />
+                  <div className="relative w-full h-full" style={{ minHeight: '100%' }}>
+                    {currentImage.type?.startsWith('video') ? (
+                      <video
+                        src={currentImage.url}
+                        className="object-cover w-full h-full aspect-video rounded-2xl"
+                        controls
+                        preload="metadata"
+                        style={{ background: '#000' }}
+                      />
+                    ) : (
+                      <Image
+                        src={currentImage.url}
+                        alt={`${event.category} image ${safeCurrentIndex + 1}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 80vw"
+                        className="object-cover"
+                        priority
+                        onError={(e) => {
+                          // If image fails to load, use fallback
+                          console.error('Failed to load main image:', currentImage.url);
+                          const target = e.target as HTMLImageElement;
+                          target.src = fallbackImageUrl;
+                        }}
+                      />
+                    )}
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -330,20 +341,38 @@ const EventDetailPage = () => {
                 style={{ minHeight: '100px' }}
                 onClick={() => setCurrentImageIndex(index)}
               >
-                <div className="relative w-full h-full" style={{ minHeight: '100%' }}> 
-                  <Image
-                    src={image.url}
-                    alt={`Thumbnail ${index + 1}`}
-                    fill
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
-                    className="object-cover"
-                    onError={(e) => {
-                      // If thumbnail fails to load, use fallback
-                      console.error('Failed to load thumbnail:', image.url);
-                      const target = e.target as HTMLImageElement;
-                      target.src = fallbackImageUrl;
-                    }}
-                  />
+                <div className="relative w-full h-full" style={{ minHeight: '100%' }}>
+                  {image.type?.startsWith('video') ? (
+                    <>
+                      <video
+                        src={image.url}
+                        className="object-cover w-full h-full aspect-square rounded-lg"
+                        style={{ background: '#000' }}
+                        muted
+                        preload="metadata"
+                      />
+                      {/* Play icon overlay for videos */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="bg-black/50 rounded-full p-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><polygon points="9.5,7.5 16.5,12 9.5,16.5" fill="white" /></svg>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <Image
+                      src={image.url}
+                      alt={`Thumbnail ${index + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
+                      className="object-cover"
+                      onError={(e) => {
+                        // If thumbnail fails to load, use fallback
+                        console.error('Failed to load thumbnail:', image.url);
+                        const target = e.target as HTMLImageElement;
+                        target.src = fallbackImageUrl;
+                      }}
+                    />
+                  )}
                 </div>
                 {index === safeCurrentIndex && (
                   <div className="absolute inset-0 bg-primary/20" />

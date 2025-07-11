@@ -29,93 +29,70 @@ export async function POST(request: Request) {
     }
 
     const formData = await request.formData();
-    const file = formData.get('file');
-    const originalName = formData.get('originalName') as string;
+    // Accept multiple files
+    const files = formData.getAll('file');
+    const originalNames = formData.getAll('originalName');
     const category = formData.get('category') as string;
     const eventDate = formData.get('eventDate') as string;
-    
-    console.log('Received upload request:', {
-      hasFile: !!file,
-      originalName,
-      category,
-      eventDate,
-      fileType: file instanceof Blob ? file.type : typeof file
-    });
 
-    if (!file || !category || !eventDate || !originalName) {
-      console.log('Missing fields:', { file: !!file, category, eventDate, originalName });
+    if (!files.length || !category || !eventDate || !originalNames.length) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    if (!(file instanceof Blob)) {
-      console.log('Invalid file type:', typeof file);
-      return NextResponse.json({ error: 'Invalid file format' }, { status: 400 });
-    }
-
-    // Generate a safe filename
-    const timestamp = Date.now();
-    const safeFilename = originalName
-      .toLowerCase()
-      .replace(/[^a-z0-9.]/g, '-')
-      .replace(/-+/g, '-');
-    
-    if (!safeFilename) {
-      console.log('Invalid filename generated from:', originalName);
-      return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
-    }
-
-    const key = `gallery/${timestamp}-${safeFilename}`;
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const contentType = file.type || 'application/octet-stream';
-
-    console.log('Processing upload:', {
-      key,
-      contentType,
-      size: buffer.length,
-      category,
-      eventDate
-    });
-
-    const uploadCommand = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-    });
-
-    await s3Client.send(uploadCommand);
-
-    // Generate signed URL for the uploaded file
-    const getCommand = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: key,
-    });
-
-    const url = await getSignedUrl(s3Client, getCommand, {
-      expiresIn: SIGNED_URL_EXPIRY,
-    });
-
-    // Store metadata in MongoDB
     await dbConnect();
-    const image = await Image.create({
-      key,
-      url,
-      category,
-      eventDate: new Date(eventDate),
-      size: buffer.length,
-      uploadedAt: new Date(),
-    });
+    const uploaded = [];
 
-    console.log('Upload successful:', {
-      key,
-      url,
-      size: buffer.length
-    });
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const originalName = originalNames[i] as string;
+      if (!(file instanceof Blob)) continue;
+
+      // Generate a safe filename
+      const timestamp = Date.now();
+      const safeFilename = originalName
+        .toLowerCase()
+        .replace(/[^a-z0-9.]/g, '-')
+        .replace(/-+/g, '-');
+      if (!safeFilename) continue;
+
+      const key = `gallery/${timestamp}-${safeFilename}`;
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const contentType = file.type || 'application/octet-stream';
+
+      const uploadCommand = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        Body: buffer,
+        ContentType: contentType,
+      });
+      await s3Client.send(uploadCommand);
+
+      // Generate signed URL for the uploaded file
+      const getCommand = new GetObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+      });
+      const url = await getSignedUrl(s3Client, getCommand, {
+        expiresIn: SIGNED_URL_EXPIRY,
+      });
+
+      // Store metadata in MongoDB
+      const image = await Image.create({
+        key,
+        url,
+        category,
+        eventDate: new Date(eventDate),
+        size: buffer.length,
+        uploadedAt: new Date(),
+        type: contentType,
+      });
+      uploaded.push(image.toObject());
+    }
 
     return NextResponse.json({
       success: true,
-      image: image.toObject(),
+      images: uploaded,
     });
   } catch (error) {
     console.error('Error uploading image:', error);
