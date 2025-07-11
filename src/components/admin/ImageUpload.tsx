@@ -311,19 +311,19 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
         <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
           {files.map((file) => {
             const isVideo = file.type?.startsWith('video') ||
-              (typeof file.url === 'string' &&
-                (file.url.endsWith('.mp4') || file.url.endsWith('.mov') || file.url.endsWith('.avi') || file.url.endsWith('.webm') || file.url.endsWith('.mkv')));
+              (typeof file.preview === 'string' &&
+                (file.preview.endsWith('.mp4') || file.preview.endsWith('.mov') || file.preview.endsWith('.avi') || file.preview.endsWith('.webm') || file.preview.endsWith('.mkv')));
             return isVideo ? (
               <video
-                key={file.id || file.url}
-                src={file.url}
+                key={file.id || file.preview}
+                src={file.preview}
                 controls
                 className="object-cover h-full w-full"
               />
             ) : (
               <Image
-                key={file.id || file.url}
-                src={file.url}
+                key={file.id || file.preview}
+                src={file.preview || ""}
                 alt={file.name || 'Upload preview'}
                 className="object-cover h-full w-full"
               />
