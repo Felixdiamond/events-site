@@ -9,7 +9,6 @@ import { Loader2 } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/DatePicker';
-import Masonry from 'react-masonry-css';
 
 interface ImageMetadata {
   key: string;

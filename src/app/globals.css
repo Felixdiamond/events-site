@@ -401,16 +401,4 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   border-color: theme('colors.primary.DEFAULT') !important;
 }
 
-/* Masonry grid styles for react-masonry-css */
-.masonry-grid {
-  display: flex;
-  gap: 1.5rem;
-}
-.masonry-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-.masonry-column > * {
-  width: 100%;
-}
+

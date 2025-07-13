@@ -47,7 +47,7 @@ const MobileHeroSection = () => {
       {/* Hero Image Background */}
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/images/hero-mobile.jpg"
+          src="/images/hero-mobilen.jpg"
           alt="Event celebration cheers"
           fill
           priority
