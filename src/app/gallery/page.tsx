@@ -57,19 +57,6 @@ interface GalleryItem {
 
 // Map API data to gallery item format
 const mapImageToGalleryItem = (image: ImageData, index: number): GalleryItem => {
-  // Determine size based on index for visual variety
-  const sizes: GallerySize[] = ['small', 'wide', 'tall', 'large'];
-  const size = sizes[index % sizes.length];
-  
-  // Generate accent colors based on category
-  const accentColors = {
-    'Weddings': 'from-rose-500/20 to-primary/20',
-    'Corporate': 'from-blue-500/20 to-primary/20',
-    'Social Events': 'from-amber-500/20 to-primary/20',
-    'Burial Services': 'from-purple-500/20 to-primary/20',
-    'Decorations': 'from-emerald-500/20 to-primary/20',
-  };
-  
   const eventDate = new Date(image.eventDate);
   
   return {
@@ -78,34 +65,19 @@ const mapImageToGalleryItem = (image: ImageData, index: number): GalleryItem => 
     image: image.url,
     title: `${image.category} Event`,
     description: `Event from ${format(eventDate, 'MMMM yyyy')}`,
-    size,
-      position: 'center',
-    accent: accentColors[image.category as keyof typeof accentColors] || 'from-primary/20 to-transparent',
+    size: 'small', // Keep for compatibility but not used
+    position: 'center',
+    accent: 'from-primary/20 to-transparent',
     eventDate,
     type: image.type, // Pass type
   };
 };
 
-// Utility function to get size classes based on item size
-const getSizeClasses = (size: GallerySize): string => {
-  switch (size) {
-    case 'small':
-      return 'col-span-1 row-span-1';
-    case 'wide':
-      return 'col-span-2 row-span-1';
-    case 'tall':
-      return 'col-span-1 row-span-2';
-    case 'large':
-      return 'col-span-2 row-span-2';
-    default:
-      return 'col-span-1 row-span-1';
-  }
-};
+
 
 const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => void }) => {
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
-  const sizeClass = getSizeClasses(item.size);
   const isVideo = item.type?.startsWith('video');
 
   const handleClick = () => {
@@ -119,13 +91,13 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className={`relative ${sizeClass}`}
+      className="relative"
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onClick={handleClick}
     >
       <motion.div 
-        className="relative h-full w-full rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer group"
+        className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-white/[0.01] border border-white/10 backdrop-blur-sm cursor-pointer group"
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.3 }}
       >
@@ -133,7 +105,7 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
           <div className="relative h-full w-full">
             <video
               src={item.image}
-              className={`object-cover w-full h-full aspect-video rounded-2xl`}
+              className="object-cover w-full h-full rounded-2xl"
               controls
               preload="metadata"
               style={{ background: '#000' }}
@@ -150,37 +122,38 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
             src={item.image}
             alt={item.title}
             fill
-            className={`object-cover ${item.position ? `object-${item.position}` : ''}`}
+            className="object-cover"
           />
         )}
-        <div className={`absolute inset-0 bg-gradient-to-t ${item.accent || 'from-primary/20 to-transparent'} mix-blend-soft-light opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-        <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Content overlay */}
         <motion.div
           initial={false}
           animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          className="absolute inset-x-0 bottom-0 p-4 md:p-6"
+          className="absolute inset-x-0 bottom-0 p-6"
         >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className={`font-bold text-white ${item.size === 'large' || item.size === 'wide' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}`}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-white text-xl">
               {item.title}
             </h3>
             <RiArrowRightUpLine className="text-primary text-xl" />
           </div>
-          <p className={`text-white/80 ${item.size === 'large' || item.size === 'wide' ? 'text-sm md:text-base' : 'text-xs md:text-sm'}`}>
+          <p className="text-white/90 text-sm">
             {item.description}
           </p>
         </motion.div>
 
+        {/* Zoom icon */}
         <motion.div
           initial={false}
           animate={isHovered ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
-          <div className={`rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center ${
-            item.size === 'large' ? 'w-12 h-12 md:w-16 md:h-16' : 'w-10 h-10 md:w-12 md:h-12'
-          }`}>
-            <RiZoomInLine className={`text-white ${item.size === 'large' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}`} />
+          <div className="rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center w-12 h-12">
+            <RiZoomInLine className="text-white text-xl" />
           </div>
         </motion.div>
       </motion.div>
@@ -190,26 +163,14 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
 
 // Loading skeleton for gallery items
 const GallerySkeleton = () => {
-  // Create an array of different sizes to mimic the bento grid
-  const skeletonSizes = [
-    'col-span-1 row-span-1', // small
-    'col-span-2 row-span-1', // wide
-    'col-span-1 row-span-2', // tall
-    'col-span-2 row-span-2', // large
-    'col-span-1 row-span-1',
-    'col-span-2 row-span-1',
-    'col-span-1 row-span-1',
-    'col-span-1 row-span-1',
-  ];
-
   return (
     <>
-      {skeletonSizes.map((size, index) => (
+      {[...Array(8)].map((_, index) => (
         <div 
           key={index} 
-          className={`${size} relative animate-pulse`}
+          className="relative animate-pulse"
         >
-          <div className="h-full w-full rounded-2xl bg-white/[0.03] border border-white/10 overflow-hidden" />
+          <div className="aspect-[4/3] rounded-2xl bg-white/[0.03] border border-white/10 overflow-hidden" />
         </div>
       ))}
     </>
@@ -486,11 +447,11 @@ const GalleryPage = () => {
             </div>
           )}
 
-          {/* Gallery Grid - Proper Bento Grid Layout */}
+          {/* Gallery Grid - Clean Responsive Layout */}
           <LayoutGroup>
             <motion.div 
               layout
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[200px] grid-flow-dense"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"
               ref={containerRef}
             >
               <AnimatePresence>

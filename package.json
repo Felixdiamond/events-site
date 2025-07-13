@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "send-reminders": "node scripts/send-reminders.js",
-    "test-reminders": "node scripts/test-reminders.js"
+    "test-reminders": "node scripts/test-reminders.js",
+    "delete-category": "node scripts/delete-category-images.js"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.758.0",

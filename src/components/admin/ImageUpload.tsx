@@ -15,8 +15,7 @@ interface ImageUploadProps {
   onError?: (error: string) => void;
 }
 
-interface FileWithPreview extends File {
-  preview?: string;
+interface FileWithId extends File {
   id: string;
   status: 'pending' | 'uploading' | 'success' | 'error';
   progress: number;
@@ -33,7 +32,7 @@ const LoadingSpinner = () => (
 );
 
 export default function ImageUpload({ onUploadComplete, onError }: ImageUploadProps) {
-  const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const [files, setFiles] = useState<FileWithId[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadedCount, setUploadedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
@@ -59,17 +58,9 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
     loadCategories();
   }, [onError]);
 
-  useEffect(() => {
-    return () => {
-      files.forEach(file => {
-        if (file.preview) {
-          URL.revokeObjectURL(file.preview);
-        }
-      });
-    };
-  }, [files]);
 
-  const uploadFile = async (file: FileWithPreview) => {
+
+  const uploadFile = async (file: FileWithId) => {
     try {
       // Update file status to uploading
       setFiles(prevFiles =>
@@ -178,21 +169,20 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
       return true;
     });
     if (validFiles.length === 0) return;
-    const filesWithPreviews = validFiles.map(file => {
-      const fileWithPreview = Object.assign(file, {
-        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+    const filesWithIds = validFiles.map(file => {
+      const fileWithId = Object.assign(file, {
         id: `${file.name}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         status: 'pending' as const,
         progress: 0
       });
-      return fileWithPreview;
+      return fileWithId;
     });
-    setFiles(prev => [...prev, ...filesWithPreviews]);
-    setTotalCount(prev => prev + filesWithPreviews.length);
+    setFiles(prev => [...prev, ...filesWithIds]);
+    setTotalCount(prev => prev + filesWithIds.length);
     setUploading(true);
     try {
       // Upload all files in parallel
-      await Promise.all(filesWithPreviews.map(uploadFile));
+      await Promise.all(filesWithIds.map(uploadFile));
     } finally {
       setUploading(false);
     }
@@ -225,25 +215,8 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
   }, [category]);
 
   const removeFile = useCallback((id: string) => {
-    setFiles(prevFiles => {
-      const fileToRemove = prevFiles.find(f => f.id === id);
-      if (fileToRemove?.preview) {
-        URL.revokeObjectURL(fileToRemove.preview);
-      }
-      return prevFiles.filter(f => f.id !== id);
-    });
+    setFiles(prevFiles => prevFiles.filter(f => f.id !== id));
   }, []);
-
-  // Cleanup previews when component unmounts
-  useEffect(() => {
-    return () => {
-      files.forEach(file => {
-        if (file.preview) {
-          URL.revokeObjectURL(file.preview);
-        }
-      });
-    };
-  }, [files]);
 
   return (
     <div className="w-full space-y-6">
@@ -309,26 +282,71 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
       {/* File list */}
       {files.length > 0 && (
         <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-          {files.map((file) => {
-            const isVideo = file.type?.startsWith('video') ||
-              (typeof file.preview === 'string' &&
-                (file.preview.endsWith('.mp4') || file.preview.endsWith('.mov') || file.preview.endsWith('.avi') || file.preview.endsWith('.webm') || file.preview.endsWith('.mkv')));
-            return isVideo ? (
-              <video
-                key={file.id || file.preview}
-                src={file.preview}
-                controls
-                className="object-cover h-full w-full"
-              />
-            ) : (
-              <Image
-                key={file.id || file.preview}
-                src={file.preview || ""}
-                alt={file.name || 'Upload preview'}
-                className="object-cover h-full w-full"
-              />
-            );
-          })}
+          {files.map((file) => (
+            <div key={file.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                  {file.type?.startsWith('video') ? (
+                    <svg className="w-5 h-5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white/90 truncate">{file.name}</p>
+                  <p className="text-xs text-white/60">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                {file.status === 'uploading' && (
+                  <div className="flex items-center space-x-2">
+                    <LoadingSpinner />
+                    <span className="text-xs text-white/60">Uploading...</span>
+                  </div>
+                )}
+                {file.status === 'success' && (
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-xs text-green-400">Uploaded</span>
+                  </div>
+                )}
+                {file.status === 'error' && (
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="text-xs text-red-400">Failed</span>
+                  </div>
+                )}
+                {file.status === 'pending' && (
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-4 h-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs text-yellow-400">Pending</span>
+                  </div>
+                )}
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFile(file.id)}
+                  className="text-white/40 hover:text-red-400"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -376,9 +394,6 @@ export default function ImageUpload({ onUploadComplete, onError }: ImageUploadPr
               variant="outline" 
               size="sm" 
               onClick={() => {
-                files.forEach(file => {
-                  if (file.preview) URL.revokeObjectURL(file.preview);
-                });
                 setFiles([]);
                 setUploadedCount(0);
                 setTotalCount(0);

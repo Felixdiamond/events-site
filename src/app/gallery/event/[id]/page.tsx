@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { RiArrowLeftLine, RiShareLine, RiDownloadLine, RiHeartLine, RiHeartFill } from 'react-icons/ri';
+import { RiArrowLeftLine, RiDownloadLine, RiHeartLine, RiHeartFill, RiFullscreenLine } from 'react-icons/ri';
 import { Loader2 } from 'lucide-react';
 
 // Interface for API response
@@ -39,7 +39,8 @@ const EventDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [liked, setLiked] = useState(false);
+  const [likedImages, setLikedImages] = useState<Set<string>>(new Set());
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Parallax scrolling effect with layoutEffect: false to fix hydration warning
@@ -116,9 +117,64 @@ const EventDetailPage = () => {
     }
   };
   
-  // Toggle like status
+  // Toggle like status for current image
   const handleLike = () => {
-    setLiked(prev => !prev);
+    const currentImageId = currentImage._id || currentImage.key;
+    setLikedImages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(currentImageId)) {
+        newSet.delete(currentImageId);
+      } else {
+        newSet.add(currentImageId);
+      }
+      return newSet;
+    });
+  };
+
+  // Check if current image is liked
+  const isCurrentImageLiked = () => {
+    const currentImageId = currentImage._id || currentImage.key;
+    return likedImages.has(currentImageId);
+  };
+
+
+
+  // Handle download functionality
+  const handleDownload = async () => {
+    try {
+      const filename = `${event?.category}-${safeCurrentIndex + 1}.${currentImage.type?.startsWith('video') ? 'mp4' : 'jpg'}`;
+      
+      // Use our proxy endpoint to handle CORS issues
+      const proxyUrl = `/api/download?url=${encodeURIComponent(currentImage.url)}&filename=${encodeURIComponent(filename)}`;
+      
+      const a = document.createElement('a');
+      a.href = proxyUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading:', error);
+      
+      // Fallback: try direct download
+      try {
+        const a = document.createElement('a');
+        a.href = currentImage.url;
+        a.download = `${event?.category}-${safeCurrentIndex + 1}.${currentImage.type?.startsWith('video') ? 'mp4' : 'jpg'}`;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (fallbackError) {
+        console.error('Fallback download also failed:', fallbackError);
+        alert('Download failed. The file may be protected or unavailable for direct download.');
+      }
+    }
+  };
+
+  // Handle fullscreen functionality
+  const handleFullscreen = () => {
+    setIsFullscreen(prev => !prev);
   };
   
   if (isLoading) {
@@ -309,19 +365,19 @@ const EventDetailPage = () => {
               
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={handleLike}>
-                  {liked ? (
+                  {isCurrentImageLiked() ? (
                     <RiHeartFill className="text-red-500" size={20} />
                   ) : (
                     <RiHeartLine className="text-white/70" size={20} />
                   )}
                 </Button>
                 
-                <Button variant="ghost" size="icon">
-                  <RiShareLine className="text-white/70" size={20} />
-                </Button>
-                
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" onClick={handleDownload}>
                   <RiDownloadLine className="text-white/70" size={20} />
+                </Button>
+
+                <Button variant="ghost" size="icon" onClick={handleFullscreen}>
+                  <RiFullscreenLine className="text-white/70" size={20} />
                 </Button>
               </div>
             </div>
@@ -383,6 +439,97 @@ const EventDetailPage = () => {
         </div>
       </section>
       
+      {/* Clean Fullscreen Modal */}
+      <AnimatePresence>
+        {isFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+            onClick={handleFullscreen}
+          >
+            <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+              {/* Simple Close Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFullscreen();
+                }}
+                className="absolute top-6 right-6 z-20 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              {/* Clean Image Container */}
+              <motion.div 
+                className="relative w-full h-full flex items-center justify-center"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {currentImage.type?.startsWith('video') ? (
+                  <video
+                    src={currentImage.url}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                    controls
+                    autoPlay
+                    style={{ background: '#000' }}
+                  />
+                ) : (
+                  <Image
+                    src={currentImage.url}
+                    alt={`${event.category} image ${safeCurrentIndex + 1}`}
+                    width={1920}
+                    height={1080}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                    priority
+                    onError={(e) => {
+                      console.error('Failed to load fullscreen image:', currentImage.url);
+                      const target = e.target as HTMLImageElement;
+                      target.src = fallbackImageUrl;
+                    }}
+                  />
+                )}
+              </motion.div>
+              
+              {/* Simple Navigation arrows */}
+              {safeCurrentIndex > 0 && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrevImage();
+                  }}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                >
+                  <RiArrowLeftLine size={24} />
+                </button>
+              )}
+              
+              {safeCurrentIndex < totalImages - 1 && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNextImage();
+                  }}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors rotate-180"
+                >
+                  <RiArrowLeftLine size={24} />
+                </button>
+              )}
+              
+              {/* Simple Image counter */}
+              <div className="absolute bottom-4 right-4 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm text-white text-sm">
+                {safeCurrentIndex + 1} / {totalImages}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Cinematic Particles */}
       <div className="fixed inset-0 pointer-events-none">
         {[...Array(30)].map((_, i) => (
