@@ -56,7 +56,7 @@ const contactInfo = [
     icon: RiMailLine,
     title: 'Email',
     details: [
-      { text: 'sparklingworldevents@gmail.com', type: 'email' },
+      { text: 'info@sparklingworldevents.com', type: 'email' },
     ],
   },
   {

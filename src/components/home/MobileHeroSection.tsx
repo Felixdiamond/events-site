@@ -47,15 +47,15 @@ const MobileHeroSection = () => {
       {/* Hero Image Background */}
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/images/hero-mobilen.jpg"
+          src="/images/heromobilenn.webp"
           alt="Event celebration cheers"
           fill
           priority
-          className="object-cover w-full h-full blur-sm"
+          className="object-cover w-full h-full blur-xs"
           sizes="100vw"
         />
         {/* Dark overlay for better contrast */}
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-black/20" />
         {/* Animated warm gradient overlay */}
         <div className="absolute inset-0 animate-hero-gradient bg-gradient-to-b from-primary/70 via-orange-200/40 to-white/10 mix-blend-multiply" />
       </div>

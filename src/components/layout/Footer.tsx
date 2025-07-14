@@ -127,9 +127,30 @@ const Footer = () => {
                   <FaPhone className="text-primary" />
                 </div>
                 <div className="space-y-1.5">
-                  <p className="text-white/70 hover:text-white transition-colors">+234 802 599 7713</p>
-                  <p className="text-white/70 hover:text-white transition-colors">+234 810 365 7145</p>
-                  <p className="text-white/70 hover:text-white transition-colors">+234 905 557 2903 (Calls Only)</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/70 hover:text-white transition-colors">+234 802 599 7713</span>
+                    <a href="https://wa.me/2348025997713" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +234 802 599 7713">
+                      <FaWhatsapp className="text-primary hover:text-primary-dark transition-colors" size={18} />
+                    </a>
+                    <a href="tel:+2348025997713" aria-label="Call +234 802 599 7713">
+                      <FaPhone className="text-primary hover:text-primary-dark transition-colors" size={18} />
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/70 hover:text-white transition-colors">+234 810 365 7145</span>
+                    <a href="https://wa.me/2348103657145" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +234 810 365 7145">
+                      <FaWhatsapp className="text-primary hover:text-primary-dark transition-colors" size={18} />
+                    </a>
+                    <a href="tel:+2348103657145" aria-label="Call +234 810 365 7145">
+                      <FaPhone className="text-primary hover:text-primary-dark transition-colors" size={18} />
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/70 hover:text-white transition-colors">+234 905 557 2903 (Calls Only)</span>
+                    <a href="tel:+2349055572903" aria-label="Call +234 905 557 2903">
+                      <FaPhone className="text-primary hover:text-primary-dark transition-colors" size={18} />
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -137,10 +158,10 @@ const Footer = () => {
                   <MdEmail className="text-primary text-xl" />
                 </div>
                 <a
-                  href="mailto:sparklingworldevents@gmail.com"
+                  href="mailto:info@sparklingworldevents.com"
                   className="text-white/70 hover:text-white transition-colors"
                 >
-                  sparklingworldevents@gmail.com
+                  info@sparklingworldevents.com
                 </a>
               </div>
               <div className="flex items-start space-x-3">
