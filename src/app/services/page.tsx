@@ -11,7 +11,7 @@ const services = [
     id: 'planning',
     title: 'Corporate/Social Event Planning & Coordination',
     description: 'Comprehensive planning and seamless coordination for corporate and social events of any scale.',
-    image: '/images/services/diningarea.jpg',
+    image: '/images/services/peopleplanning.jpg',
     icon: RiStore3Line,
     features: [
       'Event concept development',
@@ -56,7 +56,7 @@ const services = [
     id: 'decoration',
     title: 'Decoration/Styling',
     description: 'Transform your event space with creative and elegant decoration tailored to your theme.',
-    image: '/images/services/wedding.jpg',
+    image: '/images/services/decstyle.jpg',
     icon: RiPaletteLine,
     features: [
       'Theme design',

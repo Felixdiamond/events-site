@@ -70,7 +70,7 @@ const StatsSection = () => {
           {/* Section Header */}
           <div className="text-center mb-20">
             <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-sm text-primary font-medium tracking-wider uppercase mb-6">
-              Our Expertise
+              Our Achievements
             </span>
             <h2 className="text-5xl md:text-7xl font-bold mb-6">
               <GradientText>Milestones of Excellence</GradientText>

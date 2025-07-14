@@ -10,7 +10,7 @@ const services = [
     id: 'planning',
     title: 'Corporate/Social Event Planning & Coordination',
     description: 'Comprehensive planning and seamless coordination for corporate and social events of any scale.',
-    image: '/images/services/diningarea.jpg',
+    image: '/images/services/peopleplanning.jpg',
     features: [
       'Event concept development',
       'Timeline creation',
@@ -40,7 +40,7 @@ const services = [
     id: 'venue',
     title: 'Venue Selection',
     description: 'Find the perfect venue that matches your event\'s vision, size, and budget.',
-    image: '/images/services/diningarea.jpg',
+    image: '/images/services/venue.jpg',
     features: [
       'Venue research',
       'Site visits',
@@ -55,7 +55,7 @@ const services = [
     id: 'decoration',
     title: 'Decoration/Styling',
     description: 'Transform your event space with creative and elegant decoration tailored to your theme.',
-    image: '/images/services/wedding.jpg',
+    image: '/images/services/decstyle.jpg',
     features: [
       'Theme design',
       'Floral arrangements',
