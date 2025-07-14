@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FaArrowRight } from 'react-icons/fa';
 import { MdStar } from 'react-icons/md';
 import SplitText from '../common/SplitText';
+import Image from 'next/image';
 
 const FloatingParticle = ({ delay = 0 }: { delay?: number }) => (
   <motion.div
@@ -27,11 +28,6 @@ const FloatingParticle = ({ delay = 0 }: { delay?: number }) => (
 
 const HeroSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [videoError, setVideoError] = useState<string | null>(null);
-  const [isVideoFallback, setIsVideoFallback] = useState(false);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -44,7 +40,7 @@ const HeroSection = () => {
   const y = useTransform(scrollYProgress, [0, 1], ['0%', isTouchDevice ? '30%' : '50%']);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, isTouchDevice ? 0.97 : 0.95]);
-  const videoOpacity = useTransform(scrollYProgress, [0, 0.5], [0.75, 0]);
+  const imageOpacity = useTransform(scrollYProgress, [0, 0.5], [0.75, 0]);
 
   // Subtle parallax effect for decorative elements
   const glowX = useTransform(mouseX, [-1, 1], ['-3%', '3%']);
@@ -88,44 +84,6 @@ const HeroSection = () => {
     }
   }, [mouseX, mouseY, isTouchDevice]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.playbackRate = 0.75;
-    video.style.filter = 'brightness(0.65) contrast(1.1) saturate(1.1)';
-
-    const handleCanPlay = () => {
-      setIsVideoLoaded(true);
-      video.play().catch((error) => {
-        console.error('Video playback error:', error);
-        setVideoError('Video playback failed. Please refresh the page.');
-        setIsVideoFallback(true);
-      });
-    };
-
-    const handlePlaying = () => {
-      setIsVideoPlaying(true);
-    };
-
-    const handleError = (e: Event) => {
-      console.error('Video loading error:', e);
-      setVideoError('Failed to load video. Using fallback background.');
-      setIsVideoFallback(true);
-    };
-
-    video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('playing', handlePlaying);
-    video.addEventListener('error', handleError);
-    video.load();
-
-    return () => {
-      video.removeEventListener('canplay', handleCanPlay);
-      video.removeEventListener('playing', handlePlaying);
-      video.removeEventListener('error', handleError);
-    };
-  }, []);
-
   return (
     <motion.section
       ref={containerRef}
@@ -134,60 +92,28 @@ const HeroSection = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      {/* Video Background with Loading State */}
+      {/* Image Background */}
       <div className="absolute inset-0 w-full h-full bg-secondary">
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: isVideoLoaded && isVideoPlaying ? 1 : 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 2, ease: [0.45, 0, 0.55, 1] }}
           className="relative w-full h-full"
         >
-          {!isVideoFallback ? (
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              className="absolute inset-0 w-full h-full object-cover"
-              aria-hidden="true"
-            >
-              <source src="/videos/hero.webm" type="video/webm" />
-              Your browser does not support the video tag.
-            </video>
-          ) : (
-            <div 
-              className="absolute inset-0 w-full h-full bg-gradient-to-br from-secondary via-primary/10 to-secondary"
-              aria-hidden="true"
-            />
-          )}
+          <Image
+            src="/images/hero-image.jpg"
+            alt="Event celebration hero background"
+            fill
+            priority
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: 0.85 }}
+            sizes="100vw"
+          />
         </motion.div>
-        
-        {/* Loading Spinner */}
-        {!isVideoLoaded && !isVideoFallback && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              role="progressbar"
-              aria-label="Loading video"
-            />
-          </div>
-        )}
-
-        {/* Error Message */}
-        {videoError && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-500/80 text-white rounded-lg text-sm">
-            {videoError}
-          </div>
-        )}
-
         {/* Enhanced Gradient Overlays */}
         <motion.div 
           className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/85 to-secondary"
-          style={{ opacity: videoOpacity }}
+          style={{ opacity: imageOpacity }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/60 via-transparent to-secondary/60" />
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-primary/5 to-transparent mix-blend-overlay" />
