@@ -36,13 +36,13 @@ const stats = [
     description: 'Exceeding expectations consistently',
   },
   {
-    value: 25,
+    value: 10,
     suffix: 'K',
     label: 'Happy Guests',
     description: 'Memories created and shared',
   },
   {
-    value: 12,
+    value: 10,
     label: 'Industry Awards',
     description: 'Recognition for excellence',
   },

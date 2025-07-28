@@ -66,7 +66,7 @@ const mapImageToGalleryItem = (image: ImageData, index: number): GalleryItem => 
     title: `${image.category} Event`,
     description: `Event from ${format(eventDate, 'MMMM yyyy')}`,
     size: 'small', // Keep for compatibility but not used
-    position: 'center',
+      position: 'center',
     accent: 'from-primary/20 to-transparent',
     eventDate,
     type: image.type, // Pass type
@@ -118,10 +118,10 @@ const GalleryItem = ({ item, onSelect }: { item: GalleryItem; onSelect: () => vo
             </div>
           </div>
         ) : (
-          <Image
-            src={item.image}
-            alt={item.title}
-            fill
+        <Image
+          src={item.image}
+          alt={item.title}
+          fill
             className="object-cover"
           />
         )}

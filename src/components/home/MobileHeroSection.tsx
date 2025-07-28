@@ -47,8 +47,8 @@ const MobileHeroSection = () => {
       {/* Hero Image Background */}
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/images/heromobilenn.webp"
-          alt="Event celebration cheers"
+          src="/images/hero-image.jpg"
+          alt="Event celebration hero background"
           fill
           priority
           className="object-cover w-full h-full blur-xs"
@@ -110,7 +110,7 @@ const MobileHeroSection = () => {
             {/* Main Title - Cinematic Reveal */}
             <div className="space-y-3" role="heading" aria-level={1}>
               <CinematicReveal>
-                <div className="text-3xl sm:text-4xl font-display font-bold bg-gradient-to-r from-white via-primary-200 to-white bg-clip-text text-transparent drop-shadow-sm">
+                <div className="text-3xl sm:text-4xl font-cinzel font-bold bg-gradient-to-r from-white via-primary-200 to-white bg-clip-text text-transparent drop-shadow-sm">
                   Creating Magical
                 </div>
               </CinematicReveal>
@@ -118,7 +118,7 @@ const MobileHeroSection = () => {
               <CinematicReveal delay={0.15}>
                 <StaggeredTextReveal 
                   text="Events & Memories"
-                  className="text-3xl sm:text-4xl font-display font-bold text-primary drop-shadow-lg"
+                  className="text-3xl sm:text-4xl font-cinzel font-bold text-primary drop-shadow-lg"
                   delay={0.25}
                 />
               </CinematicReveal>

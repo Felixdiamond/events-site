@@ -68,6 +68,7 @@ const config: Config = {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         serif: ['var(--font-playfair)', 'Georgia', 'serif'],
         display: ['var(--font-playfair)', 'Georgia', 'serif'],
+        cinzel: ['var(--font-cinzel)', 'Georgia', 'serif'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '1rem' }],

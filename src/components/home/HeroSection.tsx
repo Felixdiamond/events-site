@@ -105,7 +105,7 @@ const HeroSection = () => {
             alt="Event celebration hero background"
             fill
             priority
-            className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
             style={{ opacity: 0.85 }}
             sizes="100vw"
           />
@@ -213,7 +213,7 @@ const HeroSection = () => {
             </motion.div>
 
             {/* Main Title */}
-            <div className="space-y-4 md:space-y-6" role="heading" aria-level={1}>
+            <div className="space-y-4 md:space-y-6">
               <motion.div
                 initial={{ opacity: 0, y: 70 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -221,13 +221,13 @@ const HeroSection = () => {
                   duration: 1,
                   ease: [0.2, 0.65, 0.3, 0.9]
                 }}
-                className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-bold bg-gradient-to-r from-white via-primary-200 to-white bg-clip-text text-transparent drop-shadow-sm"
+                className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-cinzel font-bold bg-gradient-to-r from-white via-primary-200 to-white bg-clip-text text-transparent drop-shadow-sm"
               >
                 Creating Magical
               </motion.div>
               <SplitText
                 text="Events & Memories"
-                className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-bold text-primary drop-shadow-lg"
+                className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-cinzel font-bold text-primary drop-shadow-lg"
                 delay={isTouchDevice ? 25 : 35}
                 from={{ opacity: 0, transform: 'translate3d(0,70px,0)' }}
                 to={{ opacity: 1, transform: 'translate3d(0,0,0)' }}

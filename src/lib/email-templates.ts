@@ -371,3 +371,90 @@ export function generateAdminBookingNotificationEmail({
     </html>
   `;
 } 
+
+/**
+ * Generate an admin notification email for a new chat conversation
+ */
+export function generateAdminChatNotificationEmail({
+  customerName,
+  customerEmail,
+  firstMessage,
+  conversationId,
+}: {
+  customerName: string;
+  customerEmail: string;
+  firstMessage: string;
+  conversationId: string;
+}) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>New Chat Started</title>
+      <style>
+        body { 
+          font-family: Arial, sans-serif; 
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+        .container { padding: 20px; }
+        .header { 
+          background: linear-gradient(to right, #ff7e5f, #feb47b);
+          color: white;
+          padding: 20px;
+          text-align: center;
+        }
+        .content { padding: 20px; }
+        .chat-details {
+          background-color: #f9f9f9;
+          border-left: 4px solid #ff7e5f;
+          padding: 15px;
+          margin: 20px 0;
+        }
+        .footer { 
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+          padding: 20px;
+        }
+        .button {
+          display: inline-block;
+          background-color: #ff7e5f;
+          color: white;
+          text-decoration: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          margin: 20px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>New Chat Started</h1>
+        </div>
+        <div class="content">
+          <p>A new chat conversation has been started by a user:</p>
+          <div class="chat-details">
+            <p><strong>Name:</strong> ${customerName}</p>
+            <p><strong>Email:</strong> <a href="mailto:${customerEmail}">${customerEmail}</a></p>
+            <p><strong>First Message:</strong></p>
+            <blockquote style="margin: 10px 0; padding: 10px; background: #fffbe6; border-left: 3px solid #ff7e5f;">${firstMessage}</blockquote>
+            <p><strong>Conversation ID:</strong> <span style="font-family: monospace; background: #eee; padding: 2px 6px; border-radius: 3px;">${conversationId}</span></p>
+          </div>
+          <p>Please log in to the admin panel to respond to this chat.</p>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://sparklingworldevents.com'}/admin/chat" class="button">Open Admin Chat Panel</a>
+          <p>Best regards,<br>Sparkling World Business & Events System</p>
+        </div>
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} Sparkling World Business & Events. All rights reserved.</p>
+          <p>This is an automated message. Please do not reply directly to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+} 

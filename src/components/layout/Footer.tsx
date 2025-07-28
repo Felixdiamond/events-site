@@ -111,10 +111,12 @@ const Footer = () => {
           <div className="xl:col-span-2 lg:col-span-1 space-y-6">
             <h4 className="text-lg font-semibold text-white after:content-[''] after:block after:w-12 after:h-0.5 after:bg-primary/50 after:mt-2">Our Services</h4>
             <ul className="space-y-3">
-              <ServiceItem>Event Planning</ServiceItem>
-              <ServiceItem>Decorations</ServiceItem>
+              <ServiceItem>Corporate/Social Event Planning & Management</ServiceItem>
+              <ServiceItem>Venue Decorations/Styling</ServiceItem>
+              <ServiceItem>Vendor/Venue Sourcing</ServiceItem>
+              <ServiceItem>Event Consultations</ServiceItem>
+              <ServiceItem>Accommodation/Logistics</ServiceItem>
               <ServiceItem>Rentals</ServiceItem>
-              <ServiceItem>Coordination</ServiceItem>
             </ul>
           </div>
 

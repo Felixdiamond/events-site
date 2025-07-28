@@ -175,7 +175,39 @@ export default function ChatWidgetV2() {
     setErrors(errs);
     if (Object.keys(errs).length) return;
     setIsSubmitting(true);
-    // Create conversation
+    // Try new API endpoint for chat creation and admin notification
+    try {
+      const res = await fetch('/api/admin/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerName: name, customerEmail: email, firstMessage: message }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const convo = data.conversation;
+        setConversationId(convo.id);
+        // Insert first message (already in conversation, but keep for consistency)
+        const { data: msg, error: msgErr } = await supabase
+          .from('messages')
+          .insert({ conversation_id: convo.id, sender_type: 'customer', sender_id: email, content: message })
+          .select()
+          .single();
+        if (msgErr || !msg) {
+          setIsSubmitting(false);
+          setErrors({ message: 'Could not send message. Try again.' });
+          return;
+        }
+        setMessages([msg]);
+        setMessage('');
+        setFormStep('chat');
+        setIsSubmitting(false);
+        return;
+      }
+    } catch (err) {
+      // Fallback to old method if needed
+      console.error('Failed to use admin chat API, falling back:', err);
+    }
+    // Fallback: direct supabase insert (no email notification)
     const { data: convo, error: convoErr } = await supabase
       .from('conversations')
       .insert({ customer_email: email, customer_name: name, status: 'active', last_activity: new Date().toISOString() })

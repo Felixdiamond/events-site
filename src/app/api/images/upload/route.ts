@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const originalNames = formData.getAll('originalName');
     const category = formData.get('category') as string;
     const eventDate = formData.get('eventDate') as string;
-
+    
     if (!files.length || !category || !eventDate || !originalNames.length) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -47,44 +47,44 @@ export async function POST(request: Request) {
       const originalName = originalNames[i] as string;
       if (!(file instanceof Blob)) continue;
 
-      // Generate a safe filename
-      const timestamp = Date.now();
-      const safeFilename = originalName
-        .toLowerCase()
-        .replace(/[^a-z0-9.]/g, '-')
-        .replace(/-+/g, '-');
+    // Generate a safe filename
+    const timestamp = Date.now();
+    const safeFilename = originalName
+      .toLowerCase()
+      .replace(/[^a-z0-9.]/g, '-')
+      .replace(/-+/g, '-');
       if (!safeFilename) continue;
 
-      const key = `gallery/${timestamp}-${safeFilename}`;
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const contentType = file.type || 'application/octet-stream';
+    const key = `gallery/${timestamp}-${safeFilename}`;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const contentType = file.type || 'application/octet-stream';
 
-      const uploadCommand = new PutObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: key,
-        Body: buffer,
-        ContentType: contentType,
-      });
-      await s3Client.send(uploadCommand);
+    const uploadCommand = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: contentType,
+    });
+    await s3Client.send(uploadCommand);
 
-      // Generate signed URL for the uploaded file
-      const getCommand = new GetObjectCommand({
-        Bucket: BUCKET_NAME,
-        Key: key,
-      });
-      const url = await getSignedUrl(s3Client, getCommand, {
-        expiresIn: SIGNED_URL_EXPIRY,
-      });
+    // Generate signed URL for the uploaded file
+    const getCommand = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+    const url = await getSignedUrl(s3Client, getCommand, {
+      expiresIn: SIGNED_URL_EXPIRY,
+    });
 
-      // Store metadata in MongoDB
-      const image = await Image.create({
-        key,
-        url,
-        category,
-        eventDate: new Date(eventDate),
-        size: buffer.length,
-        uploadedAt: new Date(),
+    // Store metadata in MongoDB
+    const image = await Image.create({
+      key,
+      url,
+      category,
+      eventDate: new Date(eventDate),
+      size: buffer.length,
+      uploadedAt: new Date(),
         type: contentType,
       });
       uploaded.push(image.toObject());

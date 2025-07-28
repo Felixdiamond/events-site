@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/config';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { sendEmail } from '@/lib/email';
+import { generateAdminChatNotificationEmail } from '@/lib/email-templates';
+
+const ADMIN_CHAT_EMAIL = process.env.ADMIN_CHAT_EMAIL || 'info@sparklingworldevents.com';
 
 export async function GET(req: NextRequest) {
   try {
@@ -110,5 +114,57 @@ export async function PUT(req: NextRequest) {
       { error: 'Failed to update conversation' },
       { status: 500 }
     );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    // Only allow unauthenticated users (customers) to create conversations
+    // (Admins should not use this endpoint)
+    const { customerName, customerEmail, firstMessage } = await req.json();
+    if (!customerName || !customerEmail || !firstMessage) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database connection error' }, { status: 500 });
+    }
+    // Create the conversation
+    const { data: conversation, error } = await supabaseAdmin
+      .from('conversations')
+      .insert({
+        customer_email: customerEmail,
+        customer_name: customerName,
+        status: 'active',
+        last_activity: new Date().toISOString(),
+        last_message: firstMessage,
+        last_message_time: new Date().toISOString(),
+        unread_count: 1,
+      })
+      .select()
+      .single();
+    if (error || !conversation) {
+      return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 });
+    }
+    // Send admin notification email
+    try {
+      const html = generateAdminChatNotificationEmail({
+        customerName,
+        customerEmail,
+        firstMessage,
+        conversationId: String(conversation.id),
+      });
+      await sendEmail({
+        to: ADMIN_CHAT_EMAIL,
+        subject: 'New Chat Started on Sparkling World',
+        html,
+      });
+    } catch (emailError) {
+      console.error('Failed to send admin chat notification:', emailError);
+      // Continue even if email fails
+    }
+    return NextResponse.json({ conversation }, { status: 201 });
+  } catch (err) {
+    console.error('Error creating chat conversation:', err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

@@ -189,7 +189,7 @@ const Navbar = () => {
                     />
                     <ShinyText
                       text="Sparkling World Business & Events"
-                      className="text-base md:text-xl font-poppins"
+                      className="text-sm md:text-base lg:text-xl font-poppins"
                     />
                   </motion.div>
                 </Link>
@@ -331,7 +331,7 @@ const Navbar = () => {
                 />
                 <ShinyText
                   text="Sparkling World Business & Events"
-                  className="text-base md:text-xl font-poppins"
+                  className="text-sm md:text-base lg:text-xl font-poppins"
                 />
               </motion.div>
             </Link>
